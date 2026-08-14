@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_form_inherit_qc" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit.qc</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_open_quality_check"
+                        string="Quality Check"
+                        type="object"
+                        class="btn-secondary"
+                        icon="fa-check-circle"/>
+            </xpath>
+
+            <xpath expr="//page[@name='note']" position="after">
+                <page string="N tech Note" name="note">
+                    <field name="note" string="Note" placeholder="Add an internal note that will be printed on the Picking Operations sheet"/>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

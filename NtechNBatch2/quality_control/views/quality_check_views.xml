@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_quality_check_tree" model="ir.ui.view">
+        <field name="name">quality.check.tree</field>
+        <field name="model">quality.check</field>
+        <field name="arch" type="xml">
+            <list string="Quality Checks" default_order="check_date desc" decoration-danger="result == 'fail'" decoration-success="result == 'pass'">
+                <field name="name" decoration-bf="1"/>
+                <field name="inspector_id"/>
+                <field name="check_date"/>
+                <field name="result"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'hod'" decoration-primary="state == 'md'" decoration-success="state == 'approved'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_quality_check_form" model="ir.ui.view">
+        <field name="name">quality.check.form</field>
+        <field name="model">quality.check</field>
+        <field name="arch" type="xml">
+            <form string="Quality Check">
+                <header>
+                    <button name="action_confirm" string="Send to HOD" type="object" class="btn-primary" invisible="state != 'draft'"/>
+
+                    <button name="action_done" string="Approve" type="object" class="btn-success" invisible="state != 'md'"/>
+
+                    <field name="state" widget="statusbar" statusbar_visible="draft,hod,md,approved,confirmed"/>
+
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Inspector Info">
+                            <field name="inspector_id"/>
+                            <field name="additional_inspector_ids" widget="many2many_tags"/>
+                        </group>
+                        <group string="Check Details">
+                            <field name="check_date"/>
+                            <field name="result"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="remarks" placeholder="Enter remarks..."/>
+                    </group>
+                    <notebook>
+                        <page string="Report Notes">
+                            <field name="report_note" placeholder="Enter notes to appear on the PDF report..."/>
+                        </page>
+                        <page string="Product Lines" name="product_lines">
+                            <field name="quantity_lines">
+                                <list string="Product Lines" editable="top">
+                                    <field name="product_id"/>
+                                    <field name="rec_qty"/>
+                                    <field name="damage_qty"/>
+                                    <field name="remain_qty"/>
+                                    <field name="line_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_quality_check" model="ir.actions.act_window">
+        <field name="name">Quality Checks</field>
+        <field name="res_model">quality.check</field>
+        <field name="view_mode">list,form,calendar,kanban</field>
+    </record>
+
+    <record id="view_quality_check_calendar" model="ir.ui.view">
+        <field name="name">quality.check.calendar</field>
+        <field name="model">quality.check</field>
+        <field name="arch" type="xml">
+            <calendar string="Quality Checks" date_start="check_date" color="result" mode="month" quick_create="0">
+                <field name="name"/>
+                <field name="inspector_id"/>
+                <field name="result"/>
+                <field name="remarks"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_quality_check_kanban" model="ir.ui.view">
+        <field name="name">quality.check.kanban</field>
+        <field name="model">quality.check</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="inspector_id"/>
+                <field name="check_date"/>
+                <field name="result"/>
+                <field name="state"/>
+                <!-- <templates>
+                <t t-name="card">
+                    <div class="d-flex justify-content-between mb-2">
+                        <field name="name" class="fw-bold fs-5"/>
+                        <field name="result" widget="badge" decoration-success="result == 'pass'" decoration-danger="result == 'fail'"/>
+                    </div>
+                    <div class="text-muted">
+                        Inspector: <field name="inspector_id"/>
+                    </div>
+                    <div class="text-muted">
+                        Date: <field name="check_date"/>
+                    </div>
+                </t>
+            </templates> -->
+                <!-- <templates>
+                <t t-name="card">
+                    <div class="d-flex justify-content-between mb-2">
+                        <field name="name" class="fw-bold"/>
+
+                        
+                        <t t-if="record.result.raw_value == 'pass'">
+                            <span class="badge text-bg-success">✅ Pass</span>
+                        </t>
+                        <t t-elif="record.result.raw_value == 'fail'">
+                            <span class="badge text-bg-danger">❌ Fail</span>
+                        </t>
+                        <t t-else="">
+                            <span class="badge text-bg-secondary">⏳ Pending</span>
+                        </t>
+                    </div>
+
+                    <div class="text-muted">
+                        Inspector: <field name="inspector_id"/>
+                    </div>
+                    <div class="text-muted">
+                        <field name="check_date"/>
+                    </div>
+                </t>
+            </templates> -->
+
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between mb-2">
+                            <field name="name" class="fw-bold fs-5"/>
+                            <!-- Dynamic badge color -->
+                            <t t-if="record.result.raw_value == 'pass'">
+                                <span class="badge text-bg-success">
+                    ✅ Pass
+                                </span>
+                            </t>
+                            <t t-elif="record.result.raw_value == 'fail'">
+                                <span class="badge text-bg-danger">
+                    ❌ Fail
+                                </span>
+                            </t>
+                            <t t-else="">
+                                <span class="badge text-bg-secondary">
+                    ⏳ Pending
+                                </span>
+                            </t>
+                        </div>
+                        <div class="text-muted">
+            🔍                            <field name="inspector_id"/>
+                        </div>
+                        <footer>
+                            <field name="check_date"/>
+                            <field name="state" widget="label_selection" options="{'classes': {
+                    'draft': 'info',
+                    'hod': 'warning',
+                    'md': 'primary',
+                    'approved': 'success'
+                }}" class="ms-auto"/>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_quality_check_search" model="ir.ui.view">
+        <field name="name">quality.check.search</field>
+        <field name="model">quality.check</field>
+        <field name="arch" type="xml">
+            <search string="Search Quality Checks">
+                <field name="name" string="Reference"/>
+                <field name="inspector_id"/>
+                <separator/>
+                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <separator/>
+                <filter name="filter_pass" string="Passed" domain="[('result', '=', 'pass')]"/>
+                <filter name="filter_fail" string="Failed" domain="[('result', '=', 'fail')]"/>
+                <group>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_inspector" string="Inspector" context="{'group_by': 'inspector_id'}"/>
+                    <filter name="group_result" string="Result" context="{'group_by': 'result'}"/>
+                    <filter name="group_date" string="Check Date" context="{'group_by': 'check_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

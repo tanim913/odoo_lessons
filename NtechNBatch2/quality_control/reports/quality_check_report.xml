@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Report Action -->
+    <record id="action_report_quality_check" model="ir.actions.report">
+        <field name="name">Quality Check PDF</field>
+        <field name="model">quality.check</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">quality_control.report_quality_check</field>
+        <field name="report_file">quality_control.report_quality_check</field>
+        <field name="print_report_name">'Quality Check - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_quality_check"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- QWeb Template -->
+    <template id="report_quality_check">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <style>
+                            .qc-header {
+                                background-color: #f8f9fa;
+                                padding: 15px;
+                                border-radius: 5px;
+                                margin-bottom: 20px;
+                            }
+                            .qc-title {
+                                color: #2c3e50;
+                                font-weight: bold;
+                                text-transform: uppercase;
+                            }
+                            .qc-table {
+                                width: 100%;
+                                margin-top: 20px;
+                                border-collapse: collapse;
+                            }
+                            .qc-table th {
+                                background-color: #34495e;
+                                color: white;
+                                padding: 10px;
+                                text-align: left;
+                            }
+                            .qc-table td {
+                                border: 1px solid #ddd;
+                                padding: 8px;
+                            }
+                            .qc-result-pass {
+                                color: #27ae60;
+                                font-weight: bold;
+                            }
+                            .qc-result-fail {
+                                color: #c0392b;
+                                font-weight: bold;
+                            }
+                        </style>
+
+                        <div class="qc-header">
+                            <h2 class="qc-title">Quality Check Report: <span t-field="o.name"/></h2>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Inspector:</strong> <span t-field="o.inspector_id.name"/><br/>
+                                <strong>Date:</strong> <span t-field="o.check_date"/><br/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Result:</strong> 
+                                <span t-if="o.result == 'pass'" class="qc-result-pass">PASS</span>
+                                <span t-if="o.result == 'fail'" class="qc-result-fail">FAIL</span>
+                                <span t-if="not o.result" class="text-muted">Not Evaluated</span>
+                                <br/>
+                                <strong>Status:</strong> <span t-field="o.state"/>
+                            </div>
+                        </div>
+
+                        <t t-if="o.report_note">
+                            <div class="mt-4">
+                                <strong>Report Notes:</strong>
+                                <div t-raw="o.report_note"/>
+                            </div>
+                        </t>
+
+                        <h4 class="mt-4">Checked Product Lines</h4>
+                        <table class="qc-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Received Qty</th>
+                                    <th>Damage Qty</th>
+                                    <th>Remaining Qty</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.quantity_lines" t-as="line">
+                                    <tr>
+                                        <td><span t-field="line.product_id.name"/></td>
+                                        <td><span t-field="line.rec_qty"/></td>
+                                        <td><span t-field="line.damage_qty"/></td>
+                                        <td><span t-field="line.remain_qty"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

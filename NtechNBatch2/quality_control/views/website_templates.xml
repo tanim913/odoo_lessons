@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Job Application Form Template -->
+    <template id="job_application_form_template" name="Job Application Form">
+        <t t-call="website.layout">
+            <div id="wrap" class="container mt-5 mb-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h3 class="mb-0">Job Application Form</h3>
+                            </div>
+                            <div class="card-body">
+                                <form action="/jobs/submit" method="post" enctype="multipart/form-data">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label font-weight-bold">Full Name</label>
+                                        <input type="text" class="form-control" id="name" name="name" required="required" placeholder="Enter your full name"/>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label font-weight-bold">Email address</label>
+                                        <input type="email" class="form-control" id="email" name="email" required="required" placeholder="name@example.com"/>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="phone" class="form-label font-weight-bold">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" required="required" placeholder="Your phone number"/>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="resume" class="form-label font-weight-bold">Upload Resume (PDF)</label>
+                                        <input class="form-control" type="file" id="resume" name="resume" accept=".pdf" required="required"/>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary w-100 mt-3">Submit Application</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Job Application Success Template -->
+    <template id="job_application_success_template" name="Application Success">
+        <t t-call="website.layout">
+            <div id="wrap" class="container mt-5 mb-5 text-center">
+                <div class="card shadow-sm p-5">
+                    <i class="fa fa-check-circle text-success" style="font-size: 80px;"></i>
+                    <h2 class="mt-4">Application Submitted Successfully!</h2>
+                    <p class="lead mt-3">
+                        Thank you, <strong t-esc="name"/>! Your application has been received. 
+                        We will contact you at <strong t-esc="email"/> regarding the next steps.
+                    </p>
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-primary">Return to Homepage</a>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Portal My Home entry -->
+    <template id="portal_my_home_job_applications" name="Show Applications in Portal" inherit_id="portal.portal_my_home" customize_show="True" priority="100">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">My Job Applications</t>
+                <t t-set="url" t-value="'/my/applications'"/>
+                <t t-set="placeholder_count" t-value="'job_count'"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Portal Applications List View -->
+    <template id="portal_my_applications" name="My Applications">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Job Applications</t>
+            </t>
+            
+            <t t-if="not applications">
+                <p>You have no job applications yet.</p>
+            </t>
+            
+            <t t-if="applications" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Application Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="applications" t-as="app">
+                        <tr>
+                            <td><span t-field="app.name"/></td>
+                            <td><span t-field="app.email"/></td>
+                            <td>
+                                <span class="badge rounded-pill text-bg-info" t-field="app.state"/>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+        </t>
+    </template>
+</odoo>

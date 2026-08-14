@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_inherit_quality_control" inherit_id="account.report_invoice_document">
+        <xpath expr="//div[@id='informations']" position="inside">
+            <div class="col-auto col-3 mw-100 mb-2" t-if="o.move_type == 'out_invoice'" name="quality_control_info">
+                <strong>Quality Assured:</strong>
+                <p class="m-0" style="color: green; font-weight: bold;">Verified by NTech QA</p>
+            </div>
+        </xpath>
+    </template>
+</odoo>
