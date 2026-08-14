@@ -1057,3 +1057,104 @@ pre code {
 .apply-box:hover {
     animation: pulse-glow 2s ease infinite;
 }
+
+/* ---------- LIGHT THEME OVERRIDES ---------- */
+html.light-theme {
+    --bg-deep:        #f1f5f9;
+    --bg-surface:     #ffffff;
+    --bg-card:        #ffffff;
+    --bg-card-hover:  #f8fafc;
+    --bg-code:        #f8fafc;
+
+    --text-primary:   #0f172a;
+    --text-secondary: #334155;
+    --text-muted:     #64748b;
+
+    /* High contrast colors for light theme */
+    --accent:         #4338ca;
+    --accent-light:   #3730a3;
+    --green:          #15803d;
+    --blue:           #1d4ed8;
+    --amber:          #b45309;
+    --red:            #b91c1c;
+    --purple:         #7e22ce;
+    --cyan:           #0e7490;
+
+    --border:         rgba(0, 0, 0, 0.15);
+    --border-light:   rgba(0, 0, 0, 0.08);
+
+    --shadow-sm:      0 1px 3px rgba(0,0,0,.05);
+    --shadow-md:      0 4px 6px -1px rgba(0,0,0,.05);
+    --shadow-lg:      0 10px 15px -3px rgba(0,0,0,.05);
+    --shadow-glow:    0 0 20px rgba(99, 102, 241, 0.15);
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    color: var(--text-primary);
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+html.light-theme .theme-toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+html.light-theme .logo-mark {
+    color: #ffffff;
+}
+
+html.light-theme .topic-number {
+    color: #ffffff;
+}
+
+html.light-theme .mobile-topbar {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+html.light-theme .hamburger span {
+    background: var(--text-primary);
+}
+
+html.light-theme pre code {
+    color: #0f172a;
+}
+
+html.light-theme .anatomy-item {
+    background: #f8fafc;
+}
+
+html.light-theme .view-type-card {
+    background: #ffffff;
+}
+
+html.light-theme .callout code {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 480px) {
+    .code-block {
+        max-width: 100vw;
+        border-radius: 0;
+        margin-left: -14px;
+        margin-right: -14px;
+        border-left: none;
+        border-right: none;
+    }
+}
+
+html.light-theme .callout-info { color: #1e3a8a; }
+html.light-theme .callout-warning { color: #78350f; }
+html.light-theme .callout-tip { color: #14532d; }
+html.light-theme .callout-danger { color: #7f1d1d; }

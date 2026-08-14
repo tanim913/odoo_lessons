@@ -134,6 +134,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // ---------- THEME TOGGLE ----------
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        const iconLight = themeToggle.querySelector('.icon-light');
+        const iconDark = themeToggle.querySelector('.icon-dark');
+        
+        function updateThemeIcon() {
+            const isLight = document.documentElement.classList.contains('light-theme');
+            if (isLight) {
+                iconLight.style.display = 'inline-block';
+                iconDark.style.display = 'none';
+            } else {
+                iconLight.style.display = 'none';
+                iconDark.style.display = 'inline-block';
+            }
+        }
+        
+        updateThemeIcon();
+
+        themeToggle.addEventListener('click', () => {
+            const isLight = document.documentElement.classList.contains('light-theme');
+            if (isLight) {
+                document.documentElement.classList.remove('light-theme');
+                localStorage.setItem('ntech_theme', 'dark');
+            } else {
+                document.documentElement.classList.add('light-theme');
+                localStorage.setItem('ntech_theme', 'light');
+            }
+            updateThemeIcon();
+        });
+    }
+
     // ---------- KEYBOARD SHORTCUTS ----------
     document.addEventListener('keydown', (e) => {
         // Escape closes sidebar

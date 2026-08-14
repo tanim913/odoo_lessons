@@ -8,6 +8,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script>
+        if (localStorage.getItem('ntech_theme') === 'light') {
+            document.documentElement.classList.add('light-theme');
+        }
+    </script>
 </head>
 <body>
     <div class="progress-bar" id="progressBar"></div>
@@ -21,6 +26,9 @@
             </div>
         </div>
         <ul class="nav-list" id="navList">
+            <li style="margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;"><a href="../index.html" class="nav-link" style="color: var(--accent-light);">
+                <span class="nav-icon">⬅️</span> Course Directory
+            </a></li>
             <li><a href="#intro" class="nav-link active" data-section="intro">
                 <span class="nav-icon">🏠</span> Introduction
             </a></li>
@@ -38,7 +46,13 @@
             </a></li>
         </ul>
         <div class="sidebar-footer">
-            <div class="edition-badge">Community Edition</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <div class="edition-badge">Community Edition</div>
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle Light/Dark Mode">
+                    <span class="icon-light" style="display:none;">☀️</span>
+                    <span class="icon-dark">🌙</span>
+                </button>
+            </div>
             <span>Odoo 19 CE &bull; Ntech Batch 2</span>
         </div>
     </nav>
