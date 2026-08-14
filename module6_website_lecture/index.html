@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 6 — Odoo Website Development | Ntech Batch 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-mark">N</div>
+            <div>
+                <div class="sidebar-title">Website Dev</div>
+                <div class="sidebar-subtitle">Odoo 19 CE</div>
+            </div>
+        </div>
+        <ul class="nav-list" id="navList">
+            <li><a href="#intro" class="nav-link active" data-section="intro">
+                <span class="nav-icon">🏠</span> Introduction
+            </a></li>
+            <li><a href="#section-basics" class="nav-link" data-section="section-basics">
+                <span class="nav-icon">🌐</span> Website Basics
+            </a></li>
+            <li><a href="#section-controllers" class="nav-link" data-section="section-controllers">
+                <span class="nav-icon">🔀</span> Controllers
+            </a></li>
+            <li><a href="#section-templates" class="nav-link" data-section="section-templates">
+                <span class="nav-icon">🎨</span> Templates
+            </a></li>
+            <li><a href="#section-portal" class="nav-link" data-section="section-portal">
+                <span class="nav-icon">🔒</span> Portal &amp; Security
+            </a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="edition-badge">Community Edition</div>
+            <span>Odoo 19 CE &bull; Ntech Batch 2</span>
+        </div>
+    </nav>
+
+    <div class="mobile-topbar" id="mobileTopbar">
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span><span></span><span></span>
+        </button>
+        <span class="mobile-title">Module 6 — Website Dev</span>
+    </div>
+
+    <main class="content" id="content">
+        <section id="intro" class="section hero-section">
+            <div class="hero-badge">Module 6 of 10</div>
+            <h1>Odoo Website Development<br><span class="gradient-text">Community Edition</span></h1>
+            <p class="hero-lead">Building public-facing pages, routing, and portal views in Odoo 19.</p>
+        </section>
+
+        <!-- SECTION: Website Basics -->
+        <section id="section-basics" class="section">
+            <h2>Website Basics &amp; Module Structure</h2>
+            <p>Odoo's architecture naturally follows the Model-View-Controller (MVC) pattern, even on the frontend. When building public-facing web pages, Odoo relies heavily on its <code>website</code> and <code>portal</code> core modules. To enable website capabilities in your custom module, you must explicitly declare these dependencies in your <code>__manifest__.py</code>.</p>
+            
+            <div class="callout callout-note">
+                <strong>Why 'portal' and 'website'?</strong> 
+                <ul>
+                    <li><strong>website:</strong> Provides the routing, SEO tools, and the base <code>website.layout</code> QWeb template.</li>
+                    <li><strong>portal:</strong> Provides the standard `/my/home` interface (the customer portal) where users can log in and securely view their own records like Quotes, Invoices, or Tasks.</li>
+                </ul>
+            </div>
+            
+            <h3>Manifest Configuration</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/__manifest__.py</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">    # The 'website' dependency allows our module to hook into the frontend.
+    'depends': ['stock', 'account', 'website', 'portal'],</code></pre>
+            </div>
+        </section>
+
+        <!-- SECTION: Controllers -->
+        <section id="section-controllers" class="section">
+            <h2>Controllers (@http.route)</h2>
+            <p>In Odoo, Controllers are classes that extend <code>http.Controller</code>. They act as the "Controller" in MVC, mapping incoming URLs to Python functions using the <code>@http.route</code> decorator.</p>
+            
+            <div class="anatomy-grid">
+                <div class="anatomy-item">
+                    <code>route='/my/path'</code>
+                    <span>The URL endpoint. Can be a string or a list of strings for multiple paths.</span>
+                </div>
+                <div class="anatomy-item">
+                    <code>type='http'</code>
+                    <span>The type of request. Use <code>'http'</code> for standard web pages and <code>'json'</code> for AJAX/RPC calls.</span>
+                </div>
+                <div class="anatomy-item">
+                    <code>auth='public'</code>
+                    <span>Authentication level: <code>'public'</code> (anyone), <code>'user'</code> (must be logged in), or <code>'none'</code> (framework level).</span>
+                </div>
+                <div class="anatomy-item">
+                    <code>website=True</code>
+                    <span>Tells Odoo to render the page within the active website's context (applying languages, themes, and menus).</span>
+                </div>
+                <div class="anatomy-item">
+                    <code>methods=['POST']</code>
+                    <span>Restricts the route to specific HTTP methods (e.g., only allow POST for form submissions).</span>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/controllers/controllers.py</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">from odoo import http
+from odoo.http import request
+
+class JobApplicationWebsite(http.Controller):
+    
+    # 1. Show the Form (GET Request)
+    @http.route('/jobs/apply', type='http', auth='public', website=True)
+    def job_application_form(self, **kw):
+        # request.render points to the QWeb template XML ID.
+        # The second argument is a dictionary of variables to pass to the template.
+        return request.render('quality_control.job_application_form_template', {})
+
+    # 2. Handle Form Submission (POST Request)
+    @http.route('/jobs/submit', type='http', auth='public', website=True, methods=['POST'])
+    def job_application_submit(self, **post):
+        # We must use .sudo() here! 
+        # Why? Because 'auth="public"' means the user is a guest. Guests do not have write access to the database.
+        application = request.env['quality.job.application'].sudo().create({
+            'name': post.get('name'),
+            'email': post.get('email'),
+            'phone': post.get('phone'),
+        })
+        # Pass the created application name back to the template
+        return request.render('quality_control.job_application_success_template', {'name': application.name})</code></pre>
+            </div>
+        </section>
+
+        <!-- SECTION: Templates -->
+        <section id="section-templates" class="section">
+            <h2>Templates &amp; QWeb for Website</h2>
+            <p>Once the controller gathers the data, it passes it to QWeb, Odoo's template engine. QWeb uses standard XML tags prefixed with <code>t-</code> to inject dynamic content.</p>
+
+            <div class="callout callout-info">
+                <strong>Key QWeb Directives:</strong>
+                <ul>
+                    <li><code>t-call="website.layout"</code>: Wraps your code in the standard Odoo header and footer.</li>
+                    <li><code>t-esc="variable"</code>: Safely outputs a variable to the HTML (escapes script tags to prevent XSS).</li>
+                    <li><code>t-if="condition"</code>: Conditionally renders a block of HTML.</li>
+                    <li><code>t-foreach="records" t-as="record"</code>: Loops through a list or recordset.</li>
+                </ul>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/views/website_templates.xml</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-xml">&lt;template id="job_application_form_template" name="Job Application Form"&gt;
+    &lt;t t-call="website.layout"&gt;
+        &lt;div id="wrap" class="container mt-5"&gt;
+            &lt;h3&gt;Apply for QA Inspector&lt;/h3&gt;
+            &lt;!-- The form action MUST match the @http.route in your controller --&gt;
+            &lt;form action="/jobs/submit" method="post"&gt;
+                &lt;!-- CRITICAL: Always include csrf_token for POST forms to prevent Cross-Site Request Forgery --&gt;
+                &lt;input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/&gt;
+                
+                &lt;label&gt;Name&lt;/label&gt;
+                &lt;input type="text" class="form-control mb-3" name="name" required="1"/&gt;
+                
+                &lt;label&gt;Email&lt;/label&gt;
+                &lt;input type="email" class="form-control mb-3" name="email" required="1"/&gt;
+                
+                &lt;label&gt;Phone&lt;/label&gt;
+                &lt;input type="text" class="form-control mb-3" name="phone"/&gt;
+                
+                &lt;button type="submit" class="btn btn-primary"&gt;Submit Application&lt;/button&gt;
+            &lt;/form&gt;
+        &lt;/div&gt;
+    &lt;/t&gt;
+&lt;/template&gt;</code></pre>
+            </div>
+        </section>
+
+        <!-- SECTION: Portal -->
+        <section id="section-portal" class="section">
+            <h2>Portal: Views &amp; Security</h2>
+            <p>Once a user applies, they might want to log in and check their application status. To provide this, we inject our module's data into Odoo's standard Customer Portal (`/my/home`).</p>
+
+            <h3>1. Portal Security &amp; Access Rights</h3>
+            <p>Unlike public users, Portal users have accounts but they belong to the restricted <code>base.group_portal</code> group. We must explicitly grant them read access, but more importantly, we need a <strong>Record Rule</strong> to ensure they only see their <em>own</em> applications, not everyone else's.</p>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/security/security.xml</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-xml">&lt;record id="job_application_portal_rule" model="ir.rule"&gt;
+    &lt;field name="name"&gt;Portal users can only read their own applications&lt;/field&gt;
+    &lt;field name="model_id" ref="model_quality_job_application"/&gt;
+    &lt;!-- domain_force ensures the record's creator matches the logged-in user --&gt;
+    &lt;field name="domain_force"&gt;[('create_uid', '=', user.id)]&lt;/field&gt;
+    &lt;field name="groups" eval="[(4, ref('base.group_portal'))]"/&gt;
+&lt;/record&gt;</code></pre>
+            </div>
+
+            <h3>2. Portal Controller Integration</h3>
+            <p>By inheriting <code>CustomerPortal</code>, we can add a counter badge to the main portal dashboard and create a dedicated list view.</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/controllers/controllers.py</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">from odoo.addons.portal.controllers.portal import CustomerPortal
+
+class PortalJobApplication(CustomerPortal):
+    
+    # Add to the Portal Home Counter
+    def _prepare_home_portal_values(self, counters):
+        values = super()._prepare_home_portal_values(counters)
+        # Check if our counter should be rendered
+        if 'job_count' in counters:
+            values['job_count'] = request.env['quality.job.application'].search_count([])
+        return values
+
+    # Render the List View
+    @http.route(['/my/applications', '/my/applications/page/&lt;int:page&gt;'], type='http', auth="user", website=True)
+    def portal_my_applications(self, **kwargs):
+        # The Record Rule we created earlier will automatically filter this search!
+        applications = request.env['quality.job.application'].search([])
+        return request.render("quality_control.portal_my_applications", {'applications': applications})</code></pre>
+            </div>
+            
+            <h3>3. Portal View Template</h3>
+            <p>We use standard Portal layout templates like <code>portal.portal_layout</code>, <code>portal.portal_searchbar</code>, and <code>portal.portal_table</code> to ensure our custom page matches the rest of the Odoo portal.</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/views/website_templates.xml</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-xml">&lt;template id="portal_my_applications" name="My Applications"&gt;
+    &lt;t t-call="portal.portal_layout"&gt;
+        &lt;t t-call="portal.portal_searchbar"/&gt;
+        
+        &lt;!-- Conditional rendering using t-if --&gt;
+        &lt;t t-if="not applications"&gt;
+            &lt;p&gt;You have no job applications yet.&lt;/p&gt;
+        &lt;/t&gt;
+        
+        &lt;t t-if="applications" t-call="portal.portal_table"&gt;
+            &lt;thead&gt;
+                &lt;tr&gt;
+                    &lt;th&gt;Name&lt;/th&gt;
+                    &lt;th&gt;Email&lt;/th&gt;
+                    &lt;th&gt;Status&lt;/th&gt;
+                &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+                &lt;!-- Iteration using t-foreach --&gt;
+                &lt;t t-foreach="applications" t-as="app"&gt;
+                    &lt;tr&gt;
+                        &lt;!-- Output variables using t-field --&gt;
+                        &lt;td&gt;&lt;span t-field="app.name"/&gt;&lt;/td&gt;
+                        &lt;td&gt;&lt;span t-field="app.email"/&gt;&lt;/td&gt;
+                        &lt;td&gt;&lt;span t-field="app.state"/&gt;&lt;/td&gt;
+                    &lt;/tr&gt;
+                &lt;/t&gt;
+            &lt;/tbody&gt;
+        &lt;/t&gt;
+    &lt;/t&gt;
+&lt;/template&gt;</code></pre>
+            </div>
+
+            <h3>Relevant Reading Materials</h3>
+            <div class="callout callout-tip">
+                <strong>Odoo Official Documentation</strong>
+                <ul>
+                    <li><a href="https://www.odoo.com/documentation/19.0/developer/reference/frontend/qweb.html" target="_blank">QWeb Template Engine</a></li>
+                    <li><a href="https://www.odoo.com/documentation/19.0/developer/reference/backend/http.html" target="_blank">Web Controllers &amp; Routing</a></li>
+                    <li><a href="https://www.odoo.com/documentation/19.0/developer/howtos/backend.html#access-rights-and-record-rules" target="_blank">Security: Access Rights &amp; Record Rules</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="main-footer">
+            <p>Module 6 — Odoo Website Development</p>
+            <p>Ntech Batch 2 &bull; Full-Stack Odoo Development Course</p>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

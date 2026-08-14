@@ -1,0 +1,2018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 5 — XML Structure in Odoo 19 CE | Ntech Batch 2</title>
+    <meta name="description" content="Beginner-friendly lecture on Odoo 19 Community Edition XML views, inheritance, QWeb templates, and hands-on exercises using the Quality Control module.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ============================================================ -->
+    <!-- FLOATING PROGRESS BAR                                         -->
+    <!-- ============================================================ -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- ============================================================ -->
+    <!-- SIDEBAR NAVIGATION                                            -->
+    <!-- ============================================================ -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-mark">N</div>
+            <div>
+                <div class="sidebar-title">XML &amp; QWeb</div>
+                <div class="sidebar-subtitle">XML in Odoo 19 CE</div>
+            </div>
+        </div>
+        <ul class="nav-list" id="navList">
+            <li><a href="#intro" class="nav-link active" data-section="intro">
+                <span class="nav-icon">🏠</span> Introduction
+            </a></li>
+            <li><a href="#topic1" class="nav-link" data-section="topic1">
+                <span class="nav-icon">📄</span> XML Structure
+            </a></li>
+            <li><a href="#topic2" class="nav-link" data-section="topic2">
+                <span class="nav-icon">👁️</span> View Types
+            </a></li>
+            <li class="nav-sub"><a href="#topic2-list" class="nav-link" data-section="topic2-list">List View</a></li>
+            <li class="nav-sub"><a href="#topic2-form" class="nav-link" data-section="topic2-form">Form View</a></li>
+            <li class="nav-sub"><a href="#topic2-kanban" class="nav-link" data-section="topic2-kanban">Kanban View</a></li>
+            <li class="nav-sub"><a href="#topic2-search" class="nav-link" data-section="topic2-search">Search View</a></li>
+            <li class="nav-sub"><a href="#topic2-calendar" class="nav-link" data-section="topic2-calendar">Calendar View</a></li>
+            <li><a href="#topic3" class="nav-link" data-section="topic3">
+                <span class="nav-icon">🔧</span> Inheritance & XPath
+            </a></li>
+            <li><a href="#topic4" class="nav-link" data-section="topic4">
+                <span class="nav-icon">⚡</span> QWeb Templates
+            </a></li>
+            <li><a href="#topic5" class="nav-link" data-section="topic5">
+                <span class="nav-icon">🛠️</span> Hands-On Lab
+            </a></li>
+            <li><a href="#bonus" class="nav-link" data-section="bonus">
+                <span class="nav-icon">🎁</span> Bonus Tips
+            </a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="edition-badge">Community Edition</div>
+            <span>Odoo 19 CE &bull; Ntech Batch 2</span>
+        </div>
+    </nav>
+
+    <!-- ============================================================ -->
+    <!-- MOBILE TOPBAR                                                 -->
+    <!-- ============================================================ -->
+    <div class="mobile-topbar" id="mobileTopbar">
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span><span></span><span></span>
+        </button>
+        <span class="mobile-title">Module 5 — XML in Odoo 19 CE</span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- MAIN CONTENT                                                  -->
+    <!-- ============================================================ -->
+    <main class="content" id="content">
+
+        <!-- ====== HERO / INTRO ====== -->
+        <section id="intro" class="section hero-section">
+            <div class="hero-badge">Module 5 of 10</div>
+            <h1>XML Structure in Odoo 19<br><span class="gradient-text">Community Edition</span></h1>
+            <p class="hero-lead">
+                Everything you see in Odoo — forms, lists, kanban boards — is defined in <strong>XML</strong>.
+                Today we learn how to read, write, and customize those XML files to build real Odoo interfaces.
+            </p>
+            <div class="hero-cards">
+                <div class="info-card">
+                    <div class="info-card-icon">📄</div>
+                    <h3>XML Structure</h3>
+                    <p>How Odoo reads XML data files and the anatomy of a view record.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon">👁️</div>
+                    <h3>View Types</h3>
+                    <p>List, Form, Kanban, Search, and Calendar views explained with code.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon">🔧</div>
+                    <h3>Inheritance</h3>
+                    <p>Modify existing views without touching the original code using XPath.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon">⚡</div>
+                    <h3>QWeb</h3>
+                    <p>Dynamic templates for kanban cards, reports, and web pages.</p>
+                </div>
+            </div>
+            <div class="callout callout-info">
+                <strong>⚠️ Community Edition Note:</strong> This entire lecture targets <strong>Odoo 19 Community Edition (CE)</strong>.
+                Community Edition is free, open-source, and does not include Enterprise-only features like Studio, Barcode,
+                Quality (enterprise module), IoT, etc. All XML syntax, views, and patterns shown here work in CE.
+                The <code>quality_control</code> module we use is a <em>custom</em> module — not the Enterprise "Quality" app.
+            </div>
+            <div class="callout callout-tip">
+                <strong>📋 Prerequisites (Module 4):</strong> You should already have the <code>quality_control</code> custom module
+                with models (<code>quality.check</code>, <code>quality.check.line</code>), security CSV, and basic views.
+                Module 4 covered Python models, fields, and ORM. Today we go deep into the XML side.
+            </div>
+        </section>
+
+        <!-- ====== TOPIC 1: XML STRUCTURE ====== -->
+        <section id="topic1" class="section">
+            <div class="section-header">
+                <span class="topic-number">01</span>
+                <h2>XML Structure in Odoo</h2>
+            </div>
+
+            <h3>What is XML?</h3>
+            <p>
+                <strong>XML (eXtensible Markup Language)</strong> is a text format for structured data.
+                It looks similar to HTML but with custom tag names. Odoo uses XML to define:
+            </p>
+            <ul class="styled-list">
+                <li><strong>Views</strong> — how data appears (forms, lists, kanban)</li>
+                <li><strong>Actions</strong> — what happens when you click a menu</li>
+                <li><strong>Menus</strong> — the navigation sidebar</li>
+                <li><strong>Data records</strong> — demo data, sequences, email templates</li>
+                <li><strong>Security rules</strong> — record rules (ir.rule)</li>
+            </ul>
+
+            <h3>Basic XML Rules</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">XML Basics</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;!-- This is a comment --&gt;
+&lt;odoo&gt;
+    &lt;!-- All Odoo XML data goes inside &lt;odoo&gt; tags --&gt;
+
+    &lt;!-- Every tag that opens must close --&gt;
+    &lt;field name="value"&gt;Content&lt;/field&gt;
+
+    &lt;!-- Self-closing tags (no content) --&gt;
+    &lt;field name="check_date"/&gt;
+
+    &lt;!-- Attributes go inside the opening tag --&gt;
+    &lt;field name="state" widget="statusbar"/&gt;
+&lt;/odoo&gt;</code></pre>
+            </div>
+
+            <h3>The <code>&lt;record&gt;</code> Tag — Heart of Odoo XML</h3>
+            <p>
+                Almost everything in Odoo XML uses the <code>&lt;record&gt;</code> tag.
+                It creates or updates a record in the database.
+            </p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">Record Structure</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;record id="unique_xml_id" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;my.model.form&lt;/field&gt;
+    &lt;field name="model"&gt;my.model&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;!-- The actual view definition goes here --&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+            </div>
+
+            <div class="anatomy-grid">
+                <div class="anatomy-item">
+                    <code>id</code>
+                    <span>Unique identifier (XML ID). Used to reference this record from other places. Convention: <code>view_modelname_viewtype</code></span>
+                </div>
+                <div class="anatomy-item">
+                    <code>model</code>
+                    <span>Database model to create record in. For views it is always <code>ir.ui.view</code></span>
+                </div>
+                <div class="anatomy-item">
+                    <code>name</code>
+                    <span>Human-readable name. Convention: <code>model.name.viewtype</code></span>
+                </div>
+                <div class="anatomy-item">
+                    <code>arch</code>
+                    <span>Short for "architecture". Contains the actual XML structure of the view</span>
+                </div>
+            </div>
+
+            <h3>How Odoo Loads XML Files</h3>
+            <p>XML files are loaded through <code>__manifest__.py</code>:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">__manifest__.py</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code># __manifest__.py
+{
+    'name': "Quality Control",
+    'depends': ['stock'],
+    'data': [
+        'security/ir.model.access.csv',   # loaded first (security)
+        'views/quality_check_views.xml',   # then views
+        'views/menu.xml',                  # then menus
+    ],
+}</code></pre>
+            </div>
+            <div class="callout callout-warning">
+                <strong>Order matters!</strong> Security files must come before views.
+                Menu files referencing actions must come after the action is defined.
+                If Odoo can't find an XML ID, it means the file defining it hasn't been loaded yet.
+            </div>
+
+            <!-- APPLY TO MODULE -->
+            <div class="apply-box">
+                <div class="apply-header">
+                    <span class="apply-icon">🔨</span>
+                    <h4>Apply to quality_control Module</h4>
+                </div>
+                <p>
+                    Open <code>quality_control/__manifest__.py</code>. Notice how files are ordered:
+                    security first, then views, then menu. This is the correct pattern.
+                </p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">quality_control/__manifest__.py (current)</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+<pre><code>'data': [
+    'security/ir.model.access.csv',
+    'views/quality_check_views.xml',
+    'views/menu.xml',
+],</code></pre>
+                </div>
+            </div>
+
+            <!-- PRACTICE TASK -->
+            <div class="practice-box">
+                <div class="practice-header">
+                    <span class="practice-icon">✏️</span>
+                    <h4>Practice Task</h4>
+                </div>
+                <p>
+                    Create a new XML file <code>views/quality_check_search.xml</code> (empty for now, just the
+                    <code>&lt;odoo&gt;</code> wrapper). Add it to <code>__manifest__.py</code> in the correct position
+                    (after views, before menu). Restart and upgrade the module to verify no errors.
+                </p>
+                <details class="hint-details">
+                    <summary>💡 Hint</summary>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">views/quality_check_search.xml</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+<pre><code>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;odoo&gt;
+    &lt;!-- Search view will go here --&gt;
+&lt;/odoo&gt;</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <!-- ====== TOPIC 2: VIEW TYPES ====== -->
+        <section id="topic2" class="section">
+            <div class="section-header">
+                <span class="topic-number">02</span>
+                <h2>View Types</h2>
+            </div>
+            <p>
+                Odoo supports several view types. Each displays the same data differently.
+                The <code>view_mode</code> field in the action decides which views are available.
+            </p>
+            <div class="view-type-grid">
+                <div class="view-type-card">
+                    <div class="view-type-icon">📋</div>
+                    <h4>List (Tree)</h4>
+                    <p>Table of records with columns. Best for scanning many records.</p>
+                </div>
+                <div class="view-type-card">
+                    <div class="view-type-icon">📝</div>
+                    <h4>Form</h4>
+                    <p>Detailed single-record view for creating/editing.</p>
+                </div>
+                <div class="view-type-card">
+                    <div class="view-type-icon">📊</div>
+                    <h4>Kanban</h4>
+                    <p>Card-based view. Drag-and-drop between columns.</p>
+                </div>
+                <div class="view-type-card">
+                    <div class="view-type-icon">🔍</div>
+                    <h4>Search</h4>
+                    <p>Defines search filters, group-by options. Not a display view.</p>
+                </div>
+                <div class="view-type-card">
+                    <div class="view-type-icon">📅</div>
+                    <h4>Calendar</h4>
+                    <p>Date-based view. Shows records on a calendar grid.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====== LIST VIEW ====== -->
+        <section id="topic2-list" class="section">
+            <h3><span class="view-badge list-badge">List View</span></h3>
+            <p>
+                List view (historically called "tree") shows records as rows in a table.
+                In Odoo 19 CE, use the <code>&lt;list&gt;</code> tag (not <code>&lt;tree&gt;</code> — that's deprecated).
+            </p>
+
+            <h4>Generic Example</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">Basic List View</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;record id="view_my_model_list" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;my.model.list&lt;/field&gt;
+    &lt;field name="model"&gt;my.model&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;list string="My Records"&gt;
+            &lt;field name="name"/&gt;
+            &lt;field name="date_field"/&gt;
+            &lt;field name="state" widget="badge"
+                decoration-success="state == 'done'"
+                decoration-info="state == 'draft'"/&gt;
+        &lt;/list&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+            </div>
+
+            <h4>Key Attributes</h4>
+            <table class="ref-table">
+                <thead>
+                    <tr><th>Attribute</th><th>What it does</th><th>Example</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>string</code></td><td>Title displayed above the list</td><td><code>string="Quality Checks"</code></td></tr>
+                    <tr><td><code>editable</code></td><td>Allow inline editing</td><td><code>editable="bottom"</code></td></tr>
+                    <tr><td><code>decoration-*</code></td><td>Conditional row coloring</td><td><code>decoration-danger="state == 'fail'"</code></td></tr>
+                    <tr><td><code>default_order</code></td><td>Sort order</td><td><code>default_order="check_date desc"</code></td></tr>
+                    <tr><td><code>optional</code></td><td>Column visibility toggle</td><td><code>optional="hide"</code></td></tr>
+                </tbody>
+            </table>
+
+            <h4>Real Odoo 19 CE Example (from sale module)</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">addons/sale/views/sale_order_views.xml (simplified)</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;record id="sale_order_tree" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;sale.order.list&lt;/field&gt;
+    &lt;field name="model"&gt;sale.order&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;list class="o_sale_order" string="Sales Orders"
+              decoration-muted="state == 'cancel'"&gt;
+            &lt;field name="name" string="Number" readonly="1"
+                   decoration-bf="1"/&gt;
+            &lt;field name="date_order" optional="show"/&gt;
+            &lt;field name="partner_id" readonly="1"/&gt;
+            &lt;field name="amount_total" widget="monetary"
+                   decoration-bf="1" optional="show"/&gt;
+            &lt;field name="state" widget="badge"
+                decoration-success="state == 'sale'"
+                decoration-info="state == 'draft'"
+                optional="hide"/&gt;
+        &lt;/list&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+            </div>
+
+            <div class="apply-box">
+                <div class="apply-header">
+                    <span class="apply-icon">🔨</span>
+                    <h4>Apply to quality_control Module</h4>
+                </div>
+                <p>Your current list view in <code>quality_check_views.xml</code>:</p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Current quality_check_views.xml (list section)</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+<pre><code>&lt;record id="view_quality_check_tree" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;quality.check.tree&lt;/field&gt;
+    &lt;field name="model"&gt;quality.check&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;list&gt;
+            &lt;field name="name"/&gt;
+            &lt;field name="inspector_id"/&gt;
+            &lt;field name="check_date"/&gt;
+            &lt;field name="result"/&gt;
+            &lt;field name="state"/&gt;
+        &lt;/list&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+                </div>
+                <p><strong>Improvement ideas:</strong></p>
+                <ul class="styled-list">
+                    <li>Add <code>decoration-danger="result == 'fail'"</code> to highlight failed checks in red</li>
+                    <li>Add <code>decoration-success="result == 'pass'"</code> for green on passed</li>
+                    <li>Use <code>widget="badge"</code> on state field for colored badges</li>
+                    <li>Add <code>default_order="check_date desc"</code> to show newest first</li>
+                </ul>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Improved List View</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+<pre><code>&lt;record id="view_quality_check_tree" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;quality.check.list&lt;/field&gt;
+    &lt;field name="model"&gt;quality.check&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;list string="Quality Checks"
+              default_order="check_date desc"
+              decoration-danger="result == 'fail'"
+              decoration-success="result == 'pass'"&gt;
+            &lt;field name="name" decoration-bf="1"/&gt;
+            &lt;field name="inspector_id"/&gt;
+            &lt;field name="check_date"/&gt;
+            &lt;field name="result"/&gt;
+            &lt;field name="state" widget="badge"
+                decoration-info="state == 'draft'"
+                decoration-warning="state == 'hod'"
+                decoration-primary="state == 'md'"
+                decoration-success="state == 'approved'"/&gt;
+        &lt;/list&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+                </div>
+            </div>
+
+            <div class="practice-box">
+                <div class="practice-header">
+                    <span class="practice-icon">✏️</span>
+                    <h4>Practice Task</h4>
+                </div>
+                <p>
+                    Improve your list view with these changes:
+                </p>
+                <ol>
+                    <li>Add <code>decoration-danger</code> for failed checks</li>
+                    <li>Make the <code>state</code> field use <code>widget="badge"</code> with colored decorations</li>
+                    <li>Add <code>default_order="check_date desc"</code></li>
+                    <li>Upgrade module and verify in browser</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- ====== FORM VIEW ====== -->
+        <section id="topic2-form" class="section">
+            <h3><span class="view-badge form-badge">Form View</span></h3>
+            <p>
+                Form view shows a single record for detailed viewing/editing.
+                It has a specific structure: <code>header</code> → <code>sheet</code> → <code>groups</code> → <code>notebook</code>.
+            </p>
+
+            <h4>Form View Anatomy</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">Form View Structure</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;form string="My Record"&gt;
+    &lt;!-- 1. HEADER: Buttons + Status Bar --&gt;
+    &lt;header&gt;
+        &lt;button name="action_confirm" string="Confirm"
+                type="object" class="btn-primary"
+                invisible="state != 'draft'"/&gt;
+        &lt;field name="state" widget="statusbar"
+               statusbar_visible="draft,confirmed,done"/&gt;
+    &lt;/header&gt;
+
+    &lt;!-- 2. SHEET: Main content area --&gt;
+    &lt;sheet&gt;
+        &lt;!-- Title area --&gt;
+        &lt;div class="oe_title"&gt;
+            &lt;h1&gt;&lt;field name="name"/&gt;&lt;/h1&gt;
+        &lt;/div&gt;
+
+        &lt;!-- 3. GROUPS: Two-column layout --&gt;
+        &lt;group&gt;
+            &lt;group string="Left Column"&gt;
+                &lt;field name="field_a"/&gt;
+                &lt;field name="field_b"/&gt;
+            &lt;/group&gt;
+            &lt;group string="Right Column"&gt;
+                &lt;field name="field_c"/&gt;
+                &lt;field name="field_d"/&gt;
+            &lt;/group&gt;
+        &lt;/group&gt;
+
+        &lt;!-- 4. NOTEBOOK: Tabbed sections --&gt;
+        &lt;notebook&gt;
+            &lt;page string="Tab 1" name="tab_one"&gt;
+                &lt;field name="line_ids"&gt;
+                    &lt;list editable="bottom"&gt;
+                        &lt;field name="product_id"/&gt;
+                        &lt;field name="quantity"/&gt;
+                    &lt;/list&gt;
+                &lt;/field&gt;
+            &lt;/page&gt;
+            &lt;page string="Tab 2" name="tab_two"&gt;
+                &lt;field name="notes"/&gt;
+            &lt;/page&gt;
+        &lt;/notebook&gt;
+    &lt;/sheet&gt;
+
+    &lt;!-- 5. CHATTER: Messages & activity log --&gt;
+    &lt;chatter/&gt;
+&lt;/form&gt;</code></pre>
+            </div>
+
+            <h4>Key Form Elements</h4>
+            <table class="ref-table">
+                <thead>
+                    <tr><th>Element</th><th>Purpose</th><th>Notes</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>&lt;header&gt;</code></td><td>Action buttons + status bar</td><td>Always at top of form</td></tr>
+                    <tr><td><code>&lt;sheet&gt;</code></td><td>White card containing form fields</td><td>Required wrapper for fields</td></tr>
+                    <tr><td><code>&lt;group&gt;</code></td><td>Creates column layout</td><td>Nested groups create 2-col layout</td></tr>
+                    <tr><td><code>&lt;notebook&gt;</code></td><td>Tab container</td><td>Each <code>&lt;page&gt;</code> is a tab</td></tr>
+                    <tr><td><code>&lt;chatter/&gt;</code></td><td>Message log + followers</td><td>Model needs <code>mail.thread</code> mixin</td></tr>
+                    <tr><td><code>class="oe_title"</code></td><td>Large title styling</td><td>Wrap <code>&lt;h1&gt;</code> with record name</td></tr>
+                    <tr><td><code>invisible</code></td><td>Conditionally hide elements</td><td>Odoo 19: use Python expression, not <code>attrs</code></td></tr>
+                </tbody>
+            </table>
+
+            <div class="callout callout-warning">
+                <strong>Odoo 19 Change!</strong> In Odoo 17+, <code>attrs</code> is <strong>removed</strong>.
+                Use <code>invisible="condition"</code>, <code>readonly="condition"</code>, <code>required="condition"</code> directly.
+                <br><br>
+                <strong>Old (Odoo 16):</strong> <code>attrs="{'invisible': [('state', '!=', 'draft')]}"</code><br>
+                <strong>New (Odoo 19):</strong> <code>invisible="state != 'draft'"</code>
+            </div>
+
+            <div class="apply-box">
+                <div class="apply-header">
+                    <span class="apply-icon">🔨</span>
+                    <h4>Apply to quality_control Module</h4>
+                </div>
+                <p>Your current form view has the header commented out. Let's enable it with proper statusbar and buttons:</p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Improved Form View for quality.check</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+<pre><code>&lt;record id="view_quality_check_form" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;quality.check.form&lt;/field&gt;
+    &lt;field name="model"&gt;quality.check&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;form string="Quality Check"&gt;
+            &lt;header&gt;
+                &lt;button name="action_confirm" string="Send to HOD"
+                        type="object" class="btn-primary"
+                        invisible="state != 'draft'"/&gt;
+                &lt;button name="action_approve" string="Send to MD"
+                        type="object" class="btn-primary"
+                        invisible="state != 'hod'"/&gt;
+                &lt;button name="action_done" string="Approve"
+                        type="object" class="btn-success"
+                        invisible="state != 'md'"/&gt;
+                &lt;field name="state" widget="statusbar"
+                       statusbar_visible="draft,hod,md,approved"/&gt;
+            &lt;/header&gt;
+            &lt;sheet&gt;
+                &lt;div class="oe_title"&gt;
+                    &lt;h1&gt;&lt;field name="name"/&gt;&lt;/h1&gt;
+                &lt;/div&gt;
+                &lt;group&gt;
+                    &lt;group string="Inspector Info"&gt;
+                        &lt;field name="inspector_id"/&gt;
+                        &lt;field name="additional_inspector_ids"
+                               widget="many2many_tags"/&gt;
+                    &lt;/group&gt;
+                    &lt;group string="Check Details"&gt;
+                        &lt;field name="check_date"/&gt;
+                        &lt;field name="result"/&gt;
+                    &lt;/group&gt;
+                &lt;/group&gt;
+                &lt;group&gt;
+                    &lt;field name="remarks" placeholder="Enter remarks..."/&gt;
+                &lt;/group&gt;
+                &lt;notebook&gt;
+                    &lt;page string="Product Lines" name="product_lines"&gt;
+                        &lt;field name="quantity_lines"&gt;
+                            &lt;list string="Product Lines"
+                                  editable="bottom"&gt;
+                                &lt;field name="product_id"/&gt;
+                                &lt;field name="rec_qty"/&gt;
+                                &lt;field name="damage_qty"/&gt;
+                                &lt;field name="remain_qty"/&gt;
+                            &lt;/list&gt;
+                        &lt;/field&gt;
+                    &lt;/page&gt;
+                &lt;/notebook&gt;
+            &lt;/sheet&gt;
+        &lt;/form&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+                </div>
+            </div>
+
+            <div class="practice-box">
+                <div class="practice-header">
+                    <span class="practice-icon">✏️</span>
+                    <h4>Practice Task</h4>
+                </div>
+                <ol>
+                    <li>Uncomment the header section in your form view</li>
+                    <li>Add <code>widget="statusbar"</code> with <code>statusbar_visible</code></li>
+                    <li>Add group titles (<code>string="Inspector Info"</code>)</li>
+                    <li>Add a placeholder to the remarks field</li>
+                    <li>Upgrade module — verify buttons appear and status bar shows stages</li>
+                </ol>
+                <p><em>Note: The button methods (<code>action_confirm</code>, etc.) are commented out in the Python model. You'll need to uncomment them too for buttons to work.</em></p>
+            </div>
+        </section>
+
+        <!-- ====== KANBAN VIEW ====== -->
+        <section id="topic2-kanban" class="section">
+            <h3><span class="view-badge kanban-badge">Kanban View</span></h3>
+            <p>
+                Kanban views display records as cards. They use <strong>QWeb templates</strong> inside the XML.
+                This is where XML meets dynamic rendering.
+            </p>
+
+            <h4>Kanban Structure</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">Kanban View Anatomy</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;record id="view_my_model_kanban" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;my.model.kanban&lt;/field&gt;
+    &lt;field name="model"&gt;my.model&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;kanban class="o_kanban_mobile"&gt;
+            &lt;!-- 1. Declare fields needed in template --&gt;
+            &lt;field name="name"/&gt;
+            &lt;field name="state"/&gt;
+
+            &lt;!-- 2. QWeb template for each card --&gt;
+            &lt;templates&gt;
+                &lt;t t-name="card"&gt;
+                    &lt;div class="d-flex justify-content-between mb-2"&gt;
+                        &lt;field name="name" class="fw-bold"/&gt;
+                        &lt;field name="state" widget="badge"/&gt;
+                    &lt;/div&gt;
+                    &lt;div class="text-muted"&gt;
+                        &lt;field name="date_field"/&gt;
+                    &lt;/div&gt;
+                &lt;/t&gt;
+            &lt;/templates&gt;
+        &lt;/kanban&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+            </div>
+
+            <h4>Kanban Key Concepts</h4>
+            <table class="ref-table">
+                <thead>
+                    <tr><th>Concept</th><th>Explanation</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>t-name="card"</code></td><td>Odoo 19 uses <code>card</code> as template name (older versions used <code>kanban-box</code>)</td></tr>
+                    <tr><td><code>default_group_by</code></td><td>Group cards into columns: <code>default_group_by="state"</code></td></tr>
+                    <tr><td><code>quick_create</code></td><td>Allow quick-add cards: <code>quick_create="false"</code> to disable</td></tr>
+                    <tr><td><code>progressbar</code></td><td>Shows progress bar per column for status tracking</td></tr>
+                    <tr><td>Bootstrap CSS</td><td>Use Bootstrap classes (<code>d-flex</code>, <code>fw-bold</code>, <code>text-muted</code>) for card layout</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Odoo 19 CE Example (from sale module)</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">Sale Order Kanban (simplified)</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;kanban class="o_kanban_mobile" sample="1" quick_create="false"&gt;
+    &lt;field name="currency_id"/&gt;
+    &lt;templates&gt;
+        &lt;t t-name="card"&gt;
+            &lt;div class="d-flex align-items-baseline mb-2"&gt;
+                &lt;field name="partner_id" class="fw-bolder fs-5 me-2"/&gt;
+                &lt;field name="amount_total" widget="monetary"
+                       class="fw-bolder ms-auto"/&gt;
+            &lt;/div&gt;
+            &lt;footer class="align-items-end"&gt;
+                &lt;div class="d-flex flex-wrap gap-1 text-muted"&gt;
+                    &lt;field name="name"/&gt;
+                    &lt;field name="date_order"/&gt;
+                &lt;/div&gt;
+                &lt;field name="state" widget="label_selection"
+                    options="{'classes': {'draft': 'info',
+                              'sale': 'success'}}"/&gt;
+            &lt;/footer&gt;
+        &lt;/t&gt;
+    &lt;/templates&gt;
+&lt;/kanban&gt;</code></pre>
+            </div>
+
+            <div class="apply-box">
+                <div class="apply-header">
+                    <span class="apply-icon">🔨</span>
+                    <h4>Apply to quality_control Module</h4>
+                </div>
+                <p>Create a kanban view for <code>quality.check</code>. Add this to <code>quality_check_views.xml</code>:</p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Kanban View for quality.check</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+<pre><code>&lt;record id="view_quality_check_kanban" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;quality.check.kanban&lt;/field&gt;
+    &lt;field name="model"&gt;quality.check&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;kanban default_group_by="state"
+                class="o_kanban_mobile"&gt;
+            &lt;field name="name"/&gt;
+            &lt;field name="inspector_id"/&gt;
+            &lt;field name="check_date"/&gt;
+            &lt;field name="result"/&gt;
+            &lt;field name="state"/&gt;
+            &lt;templates&gt;
+                &lt;t t-name="card"&gt;
+                    &lt;div class="d-flex justify-content-between mb-2"&gt;
+                        &lt;field name="name" class="fw-bold fs-5"/&gt;
+                        &lt;field name="result" widget="badge"
+                            decoration-success="result == 'pass'"
+                            decoration-danger="result == 'fail'"/&gt;
+                    &lt;/div&gt;
+                    &lt;div class="text-muted"&gt;
+                        Inspector: &lt;field name="inspector_id"/&gt;
+                    &lt;/div&gt;
+                    &lt;div class="text-muted"&gt;
+                        Date: &lt;field name="check_date"/&gt;
+                    &lt;/div&gt;
+                &lt;/t&gt;
+            &lt;/templates&gt;
+        &lt;/kanban&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+                </div>
+                <p>Then update the action to include kanban:</p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Update action in quality_check_views.xml</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+<pre><code>&lt;record id="action_quality_check" model="ir.actions.act_window"&gt;
+    &lt;field name="name"&gt;Quality Checks&lt;/field&gt;
+    &lt;field name="res_model"&gt;quality.check&lt;/field&gt;
+    &lt;field name="view_mode"&gt;list,kanban,form&lt;/field&gt;
+&lt;/record&gt;</code></pre>
+                </div>
+            </div>
+
+            <div class="practice-box">
+                <div class="practice-header">
+                    <span class="practice-icon">✏️</span>
+                    <h4>Practice Task</h4>
+                </div>
+                <ol>
+                    <li>Add the kanban view record to your <code>quality_check_views.xml</code></li>
+                    <li>Update <code>view_mode</code> in the action to include <code>kanban</code></li>
+                    <li>Upgrade the module and switch to kanban view in browser</li>
+                    <li><strong>Bonus:</strong> Try adding <code>default_group_by="result"</code> instead of state</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- ====== SEARCH VIEW ====== -->
+        <section id="topic2-search" class="section">
+            <h3><span class="view-badge search-badge">Search View</span></h3>
+            <p>
+                Search views don't display records. They define what <strong>search fields, filters, and group-by options</strong>
+                appear in the search bar above list/kanban views.
+            </p>
+
+            <h4>Search View Structure</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">Search View Anatomy</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;record id="view_my_model_search" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;my.model.search&lt;/field&gt;
+    &lt;field name="model"&gt;my.model&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;search string="Search My Model"&gt;
+            &lt;!-- 1. Search fields (type-ahead search) --&gt;
+            &lt;field name="name" string="Reference"/&gt;
+            &lt;field name="partner_id" operator="child_of"/&gt;
+
+            &lt;!-- 2. Filters (predefined filter buttons) --&gt;
+            &lt;separator/&gt;
+            &lt;filter name="filter_draft" string="Draft"
+                    domain="[('state', '=', 'draft')]"/&gt;
+            &lt;filter name="filter_done" string="Done"
+                    domain="[('state', '=', 'done')]"/&gt;
+
+            &lt;!-- 3. Group By (in a group tag) --&gt;
+            &lt;group&gt;
+                &lt;filter name="group_by_state" string="Status"
+                        context="{'group_by': 'state'}"/&gt;
+                &lt;filter name="group_by_date" string="Date"
+                        context="{'group_by': 'date_field'}"/&gt;
+            &lt;/group&gt;
+        &lt;/search&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+            </div>
+
+            <h4>Key Concepts</h4>
+            <table class="ref-table">
+                <thead>
+                    <tr><th>Element</th><th>Purpose</th><th>Example</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>&lt;field&gt;</code></td><td>Searchable field (autocomplete)</td><td><code>&lt;field name="name"/&gt;</code></td></tr>
+                    <tr><td><code>&lt;filter&gt;</code></td><td>Predefined filter button</td><td><code>domain="[('state','=','draft')]"</code></td></tr>
+                    <tr><td><code>&lt;separator/&gt;</code></td><td>Visual separator between filters</td><td>Groups related filters</td></tr>
+                    <tr><td><code>&lt;group&gt;</code></td><td>Group-by section</td><td>Uses <code>context={'group_by': 'field'}</code></td></tr>
+                    <tr><td><code>filter_domain</code></td><td>Custom search logic</td><td>Search across multiple fields</td></tr>
+                </tbody>
+            </table>
+
+            <div class="apply-box">
+                <div class="apply-header">
+                    <span class="apply-icon">🔨</span>
+                    <h4>Apply to quality_control Module</h4>
+                </div>
+                <p>Your module has no search view yet. Create one:</p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Search View for quality.check</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+<pre><code>&lt;record id="view_quality_check_search" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;quality.check.search&lt;/field&gt;
+    &lt;field name="model"&gt;quality.check&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;search string="Search Quality Checks"&gt;
+            &lt;field name="name" string="Reference"/&gt;
+            &lt;field name="inspector_id"/&gt;
+            &lt;separator/&gt;
+            &lt;filter name="filter_draft" string="Draft"
+                    domain="[('state', '=', 'draft')]"/&gt;
+            &lt;filter name="filter_approved" string="Approved"
+                    domain="[('state', '=', 'approved')]"/&gt;
+            &lt;separator/&gt;
+            &lt;filter name="filter_pass" string="Passed"
+                    domain="[('result', '=', 'pass')]"/&gt;
+            &lt;filter name="filter_fail" string="Failed"
+                    domain="[('result', '=', 'fail')]"/&gt;
+            &lt;group&gt;
+                &lt;filter name="group_state" string="Status"
+                        context="{'group_by': 'state'}"/&gt;
+                &lt;filter name="group_inspector" string="Inspector"
+                        context="{'group_by': 'inspector_id'}"/&gt;
+                &lt;filter name="group_result" string="Result"
+                        context="{'group_by': 'result'}"/&gt;
+                &lt;filter name="group_date" string="Check Date"
+                        context="{'group_by': 'check_date'}"/&gt;
+            &lt;/group&gt;
+        &lt;/search&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+                </div>
+            </div>
+
+            <div class="practice-box">
+                <div class="practice-header">
+                    <span class="practice-icon">✏️</span>
+                    <h4>Practice Task</h4>
+                </div>
+                <ol>
+                    <li>Add search view to <code>quality_check_views.xml</code></li>
+                    <li>Add the file path to <code>__manifest__.py</code> if in separate file</li>
+                    <li>Upgrade and test — try filtering by "Draft" and "Group By → Inspector"</li>
+                    <li><strong>Bonus:</strong> Add a <code>filter_domain</code> on <code>name</code> to search across name AND inspector</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- ====== CALENDAR VIEW ====== -->
+        <section id="topic2-calendar" class="section">
+            <h3><span class="view-badge calendar-badge">Calendar View</span></h3>
+            <p>
+                Calendar view displays records on a calendar based on a date field.
+                Great for scheduling and timeline visibility.
+            </p>
+
+            <h4>Calendar View Structure</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">Calendar View</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;record id="view_my_model_calendar" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;my.model.calendar&lt;/field&gt;
+    &lt;field name="model"&gt;my.model&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;calendar string="My Calendar"
+                  date_start="start_date"
+                  date_stop="end_date"
+                  color="state"
+                  mode="month"
+                  quick_create="0"&gt;
+            &lt;field name="name"/&gt;
+            &lt;field name="partner_id" avatar_field="avatar_128"/&gt;
+            &lt;field name="state" filters="1" invisible="1"/&gt;
+        &lt;/calendar&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+            </div>
+
+            <table class="ref-table">
+                <thead>
+                    <tr><th>Attribute</th><th>Purpose</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>date_start</code></td><td>Field for event start date (required)</td></tr>
+                    <tr><td><code>date_stop</code></td><td>Field for event end date (optional — single-day if omitted)</td></tr>
+                    <tr><td><code>color</code></td><td>Field to color-code events</td></tr>
+                    <tr><td><code>mode</code></td><td>Default view: <code>month</code>, <code>week</code>, or <code>day</code></td></tr>
+                    <tr><td><code>quick_create</code></td><td>Set to <code>0</code> to disable click-to-create</td></tr>
+                </tbody>
+            </table>
+
+            <div class="apply-box">
+                <div class="apply-header">
+                    <span class="apply-icon">🔨</span>
+                    <h4>Apply to quality_control Module</h4>
+                </div>
+                <p>Our <code>quality.check</code> has a <code>check_date</code> field — perfect for a calendar:</p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Calendar View for quality.check</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+<pre><code>&lt;record id="view_quality_check_calendar" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;quality.check.calendar&lt;/field&gt;
+    &lt;field name="model"&gt;quality.check&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;calendar string="Quality Check Calendar"
+                  date_start="check_date"
+                  color="result"
+                  mode="month"
+                  quick_create="0"&gt;
+            &lt;field name="name"/&gt;
+            &lt;field name="inspector_id"/&gt;
+            &lt;field name="result"/&gt;
+        &lt;/calendar&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+                </div>
+                <p>Update action: <code>view_mode="list,kanban,form,calendar"</code></p>
+            </div>
+
+            <div class="practice-box">
+                <div class="practice-header">
+                    <span class="practice-icon">✏️</span>
+                    <h4>Practice Task</h4>
+                </div>
+                <ol>
+                    <li>Add calendar view to <code>quality_check_views.xml</code></li>
+                    <li>Add <code>calendar</code> to <code>view_mode</code> in the action</li>
+                    <li>Upgrade module and switch to calendar view</li>
+                    <li>Create a few quality check records with different dates and verify they appear on calendar</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- ====== TOPIC 3: INHERITANCE & XPATH ====== -->
+        <section id="topic3" class="section">
+            <div class="section-header">
+                <span class="topic-number">03</span>
+                <h2>Customization — Inheritance & XPath</h2>
+            </div>
+            <p>
+                One of Odoo's most powerful features: <strong>modify existing views without editing the original file</strong>.
+                This is how custom modules extend base Odoo.
+            </p>
+
+            <h3>Why Inheritance?</h3>
+            <div class="callout callout-info">
+                <strong>Golden Rule:</strong> Never modify base Odoo source files. Always create a new module that <em>inherits</em> and extends.
+                This way, your changes survive Odoo upgrades.
+            </div>
+
+            <h3>View Inheritance Basics</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">Inherited View Structure</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;record id="view_partner_form_inherit_my_module" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;res.partner.form.inherit.my_module&lt;/field&gt;
+    &lt;field name="model"&gt;res.partner&lt;/field&gt;
+    &lt;!-- Key: reference the original view --&gt;
+    &lt;field name="inherit_id" ref="base.view_partner_form"/&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;!-- Your modifications go here --&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+            </div>
+
+            <h3>Position Attributes</h3>
+            <p>Use <code>position</code> to tell Odoo <em>where</em> to place your changes:</p>
+            <table class="ref-table">
+                <thead>
+                    <tr><th>Position</th><th>What it does</th><th>Example</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>after</code></td><td>Add content after the matched element</td><td>Add field after another field</td></tr>
+                    <tr><td><code>before</code></td><td>Add content before the matched element</td><td>Add button before existing button</td></tr>
+                    <tr><td><code>inside</code></td><td>Add content inside the matched element (at end)</td><td>Add fields to a group</td></tr>
+                    <tr><td><code>replace</code></td><td>Replace the matched element entirely</td><td>Swap one field for another</td></tr>
+                    <tr><td><code>attributes</code></td><td>Modify attributes of the matched element</td><td>Change <code>string</code>, <code>invisible</code>, etc.</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Method 1: Simple Field Matching</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">Simple Matching — Add after a field</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;!-- Find the 'phone' field and add our field after it --&gt;
+&lt;field name="phone" position="after"&gt;
+    &lt;field name="my_custom_field"/&gt;
+&lt;/field&gt;
+
+&lt;!-- Change attributes of existing field --&gt;
+&lt;field name="email" position="attributes"&gt;
+    &lt;attribute name="required"&gt;1&lt;/attribute&gt;
+    &lt;attribute name="string"&gt;Business Email&lt;/attribute&gt;
+&lt;/field&gt;
+
+&lt;!-- Replace a field with something else --&gt;
+&lt;field name="old_field" position="replace"&gt;
+    &lt;field name="new_better_field"/&gt;
+&lt;/field&gt;
+
+&lt;!-- Add field inside a group --&gt;
+&lt;group name="sale_info" position="inside"&gt;
+    &lt;field name="my_extra_field"/&gt;
+&lt;/group&gt;</code></pre>
+            </div>
+
+            <h3>Method 2: XPath — Precise Targeting</h3>
+            <p>
+                When simple field matching won't work (field appears multiple times, or you need to target
+                a <code>&lt;group&gt;</code>, <code>&lt;page&gt;</code>, or <code>&lt;div&gt;</code>), use <strong>XPath</strong>:
+            </p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">XPath Examples</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;!-- Target a specific notebook page by name attribute --&gt;
+&lt;xpath expr="//page[@name='other_information']" position="after"&gt;
+    &lt;page string="Custom Tab" name="custom_tab"&gt;
+        &lt;field name="custom_notes"/&gt;
+    &lt;/page&gt;
+&lt;/xpath&gt;
+
+&lt;!-- Target a div by class --&gt;
+&lt;xpath expr="//div[@class='oe_title']" position="inside"&gt;
+    &lt;h3&gt;Subtitle: &lt;field name="subtitle_field"/&gt;&lt;/h3&gt;
+&lt;/xpath&gt;
+
+&lt;!-- Target first group inside sheet --&gt;
+&lt;xpath expr="//sheet/group[1]" position="after"&gt;
+    &lt;group string="Extra Info"&gt;
+        &lt;field name="extra_info"/&gt;
+    &lt;/group&gt;
+&lt;/xpath&gt;
+
+&lt;!-- Target button by name --&gt;
+&lt;xpath expr="//button[@name='action_confirm']" position="before"&gt;
+    &lt;button name="action_pre_check" string="Pre-Check"
+            type="object"/&gt;
+&lt;/xpath&gt;</code></pre>
+            </div>
+
+            <h4>Common XPath Expressions</h4>
+            <table class="ref-table">
+                <thead>
+                    <tr><th>XPath</th><th>Matches</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>//field[@name='phone']</code></td><td>Any field with name="phone"</td></tr>
+                    <tr><td><code>//page[@name='tab_one']</code></td><td>Notebook page with name="tab_one"</td></tr>
+                    <tr><td><code>//group[@string='Sales']</code></td><td>Group with title "Sales"</td></tr>
+                    <tr><td><code>//sheet/group[1]</code></td><td>First group directly inside sheet</td></tr>
+                    <tr><td><code>//notebook</code></td><td>The notebook element</td></tr>
+                    <tr><td><code>//header/button[1]</code></td><td>First button in header</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Real-World Odoo 19 CE Inheritance Example</h3>
+            <p>From <code>sale/views/sale_order_views.xml</code> — how Sale module inherits its own base list view:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">Odoo 19 CE: View Inheritance (sale module)</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;!-- Quotation list inherits from sale order list --&gt;
+&lt;record id="view_quotation_tree" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;sale.order.list (quotes)&lt;/field&gt;
+    &lt;field name="model"&gt;sale.order&lt;/field&gt;
+    &lt;field name="inherit_id" ref="sale_order_tree"/&gt;
+    &lt;field name="mode"&gt;primary&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;!-- Change the title --&gt;
+        &lt;list position="attributes"&gt;
+            &lt;attribute name="string"&gt;Quotations&lt;/attribute&gt;
+        &lt;/list&gt;
+        &lt;!-- Replace date_order with create_date --&gt;
+        &lt;field name="date_order" position="replace"&gt;
+            &lt;field name="create_date" string="Creation Date"
+                   optional="show"/&gt;
+        &lt;/field&gt;
+        &lt;!-- Change field visibility --&gt;
+        &lt;field name="state" position="attributes"&gt;
+            &lt;attribute name="optional"&gt;show&lt;/attribute&gt;
+        &lt;/field&gt;
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+            </div>
+
+            <div class="apply-box">
+                <div class="apply-header">
+                    <span class="apply-icon">🔨</span>
+                    <h4>Apply to quality_control Module</h4>
+                </div>
+                <p>
+                    Let's say you want to add a custom field to the stock picking form
+                    (since quality_control depends on <code>stock</code>). Here's how:
+                </p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Example: Inherit stock.picking form</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+<pre><code>&lt;!-- In views/stock_picking_inherit.xml --&gt;
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;odoo&gt;
+    &lt;record id="view_picking_form_inherit_qc"
+            model="ir.ui.view"&gt;
+        &lt;field name="name"&gt;stock.picking.form.inherit.qc&lt;/field&gt;
+        &lt;field name="model"&gt;stock.picking&lt;/field&gt;
+        &lt;field name="inherit_id"
+               ref="stock.view_picking_form"/&gt;
+        &lt;field name="arch" type="xml"&gt;
+            &lt;!-- Add a "Quality Check" button in header --&gt;
+            &lt;xpath expr="//header" position="inside"&gt;
+                &lt;button name="action_open_quality_check"
+                        string="Quality Check"
+                        type="object"
+                        class="btn-secondary"
+                        icon="fa-check-circle"/&gt;
+            &lt;/xpath&gt;
+        &lt;/field&gt;
+    &lt;/record&gt;
+&lt;/odoo&gt;</code></pre>
+                </div>
+                <p><em>Note: You'd need to add the Python method <code>action_open_quality_check</code> to the stock.picking model via Python inheritance too.</em></p>
+            </div>
+
+            <div class="practice-box">
+                <div class="practice-header">
+                    <span class="practice-icon">✏️</span>
+                    <h4>Practice Task</h4>
+                </div>
+                <ol>
+                    <li>Create a new file <code>views/stock_picking_inherit.xml</code></li>
+                    <li>Use XPath to add a notebook page called "Quality Info" to the stock picking form</li>
+                    <li>Add the file to <code>__manifest__.py</code></li>
+                    <li>Upgrade and check the stock picking form for your new tab</li>
+                </ol>
+                <details class="hint-details">
+                    <summary>💡 Hint</summary>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Hint: Add tab to picking form</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+<pre><code>&lt;xpath expr="//notebook" position="inside"&gt;
+    &lt;page string="Quality Info" name="quality_info"&gt;
+        &lt;group&gt;
+            &lt;p&gt;Quality check info will go here.&lt;/p&gt;
+        &lt;/group&gt;
+    &lt;/page&gt;
+&lt;/xpath&gt;</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <!-- ====== TOPIC 4: QWEB TEMPLATES ====== -->
+        <section id="topic4" class="section">
+            <div class="section-header">
+                <span class="topic-number">04</span>
+                <h2>QWeb — Templates & Dynamic Rendering</h2>
+            </div>
+            <p>
+                <strong>QWeb</strong> is Odoo's template engine. It uses special <code>t-*</code> attributes
+                in XML to create dynamic content. You already saw it in Kanban cards.
+                It is also used for <strong>PDF reports</strong> and <strong>website pages</strong>.
+            </p>
+
+            <h3>QWeb Directives</h3>
+            <table class="ref-table">
+                <thead>
+                    <tr><th>Directive</th><th>Purpose</th><th>Example</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>t-if</code></td>
+                        <td>Conditional rendering</td>
+                        <td><code>&lt;span t-if="record.result.raw_value == 'pass'"&gt;✅&lt;/span&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-else</code></td>
+                        <td>Else branch</td>
+                        <td><code>&lt;span t-else=""&gt;❌&lt;/span&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-elif</code></td>
+                        <td>Else-if branch</td>
+                        <td><code>&lt;span t-elif="condition"&gt;...&lt;/span&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-foreach</code></td>
+                        <td>Loop over items</td>
+                        <td><code>&lt;t t-foreach="lines" t-as="line"&gt;...&lt;/t&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-esc</code></td>
+                        <td>Output escaped text</td>
+                        <td><code>&lt;span t-esc="record.name.value"/&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-out</code></td>
+                        <td>Output (Odoo 17+, replaces t-esc in reports)</td>
+                        <td><code>&lt;span t-out="doc.name"/&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-att-*</code></td>
+                        <td>Dynamic attribute</td>
+                        <td><code>&lt;div t-att-class="'bg-' + color"/&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-set</code></td>
+                        <td>Set a variable</td>
+                        <td><code>&lt;t t-set="total" t-value="100"/&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-call</code></td>
+                        <td>Include another template</td>
+                        <td><code>&lt;t t-call="web.html_container"/&gt;</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>QWeb in Kanban Cards</h3>
+            <p>Kanban is where you'll use QWeb most often as a beginner:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">QWeb in Kanban — Conditional Content</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;templates&gt;
+    &lt;t t-name="card"&gt;
+        &lt;div class="d-flex justify-content-between mb-2"&gt;
+            &lt;field name="name" class="fw-bold"/&gt;
+
+            &lt;!-- Conditional icon based on result --&gt;
+            &lt;t t-if="record.result.raw_value == 'pass'"&gt;
+                &lt;span class="badge text-bg-success"&gt;✅ Pass&lt;/span&gt;
+            &lt;/t&gt;
+            &lt;t t-elif="record.result.raw_value == 'fail'"&gt;
+                &lt;span class="badge text-bg-danger"&gt;❌ Fail&lt;/span&gt;
+            &lt;/t&gt;
+            &lt;t t-else=""&gt;
+                &lt;span class="badge text-bg-secondary"&gt;⏳ Pending&lt;/span&gt;
+            &lt;/t&gt;
+        &lt;/div&gt;
+
+        &lt;div class="text-muted"&gt;
+            Inspector: &lt;field name="inspector_id"/&gt;
+        &lt;/div&gt;
+        &lt;div class="text-muted"&gt;
+            &lt;field name="check_date"/&gt;
+        &lt;/div&gt;
+    &lt;/t&gt;
+&lt;/templates&gt;</code></pre>
+            </div>
+
+            <h3>QWeb in PDF Reports</h3>
+            <p>Reports use QWeb server-side to generate HTML that becomes PDF:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">PDF Report Template (Odoo 19 CE syntax)</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;!-- Step 1: Register the report action --&gt;
+&lt;record id="action_report_quality_check" model="ir.actions.report"&gt;
+    &lt;field name="name"&gt;Quality Check Report&lt;/field&gt;
+    &lt;field name="model"&gt;quality.check&lt;/field&gt;
+    &lt;field name="report_type"&gt;qweb-pdf&lt;/field&gt;
+    &lt;field name="report_name"&gt;
+        quality_control.report_quality_check_template
+    &lt;/field&gt;
+    &lt;field name="report_file"&gt;
+        quality_control.report_quality_check_template
+    &lt;/field&gt;
+    &lt;field name="binding_model_id"
+           ref="model_quality_check"/&gt;
+    &lt;field name="binding_type"&gt;report&lt;/field&gt;
+&lt;/record&gt;
+
+&lt;!-- Step 2: Define the template --&gt;
+&lt;template id="report_quality_check_template"&gt;
+    &lt;t t-call="web.html_container"&gt;
+        &lt;t t-foreach="docs" t-as="doc"&gt;
+            &lt;t t-call="web.external_layout"&gt;
+                &lt;div class="page"&gt;
+                    &lt;h2&gt;Quality Check: &lt;t t-out="doc.name"/&gt;&lt;/h2&gt;
+                    &lt;div class="row mt-3"&gt;
+                        &lt;div class="col-6"&gt;
+                            &lt;strong&gt;Inspector:&lt;/strong&gt;
+                            &lt;span t-out="doc.inspector_id.name"/&gt;
+                        &lt;/div&gt;
+                        &lt;div class="col-6"&gt;
+                            &lt;strong&gt;Date:&lt;/strong&gt;
+                            &lt;span t-out="doc.check_date"/&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+
+                    &lt;!-- Product lines table --&gt;
+                    &lt;table class="table table-sm mt-4"&gt;
+                        &lt;thead&gt;
+                            &lt;tr&gt;
+                                &lt;th&gt;Product&lt;/th&gt;
+                                &lt;th&gt;Received&lt;/th&gt;
+                                &lt;th&gt;Damaged&lt;/th&gt;
+                                &lt;th&gt;Remaining&lt;/th&gt;
+                            &lt;/tr&gt;
+                        &lt;/thead&gt;
+                        &lt;tbody&gt;
+                            &lt;t t-foreach="doc.quantity_lines"
+                               t-as="line"&gt;
+                                &lt;tr&gt;
+                                    &lt;td t-out="line.product_id.name"/&gt;
+                                    &lt;td t-out="line.rec_qty"/&gt;
+                                    &lt;td t-out="line.damage_qty"/&gt;
+                                    &lt;td t-out="line.remain_qty"/&gt;
+                                &lt;/tr&gt;
+                            &lt;/t&gt;
+                        &lt;/tbody&gt;
+                    &lt;/table&gt;
+
+                    &lt;div class="mt-3"&gt;
+                        &lt;strong&gt;Result:&lt;/strong&gt;
+                        &lt;span t-if="doc.result == 'pass'"
+                              class="text-success fw-bold"&gt;PASS&lt;/span&gt;
+                        &lt;span t-elif="doc.result == 'fail'"
+                              class="text-danger fw-bold"&gt;FAIL&lt;/span&gt;
+                    &lt;/div&gt;
+
+                    &lt;div t-if="doc.remarks" class="mt-3"&gt;
+                        &lt;strong&gt;Remarks:&lt;/strong&gt;
+                        &lt;p t-out="doc.remarks"/&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/t&gt;
+        &lt;/t&gt;
+    &lt;/t&gt;
+&lt;/template&gt;</code></pre>
+            </div>
+
+            <div class="callout callout-info">
+                <strong>Key differences from Kanban QWeb:</strong><br>
+                In reports, data comes from <code>doc</code> (Python object). Access fields directly: <code>doc.name</code>.<br>
+                In kanban, data comes from <code>record</code> (JS object). Access via: <code>record.name.raw_value</code>.
+            </div>
+
+            <div class="apply-box">
+                <div class="apply-header">
+                    <span class="apply-icon">🔨</span>
+                    <h4>Apply to quality_control Module</h4>
+                </div>
+                <p>Enhance your kanban view with conditional QWeb rendering:</p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Enhanced Kanban with QWeb conditionals</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+<pre><code>&lt;templates&gt;
+    &lt;t t-name="card"&gt;
+        &lt;div class="d-flex justify-content-between mb-2"&gt;
+            &lt;field name="name" class="fw-bold fs-5"/&gt;
+            &lt;!-- Dynamic badge color --&gt;
+            &lt;t t-if="record.result.raw_value == 'pass'"&gt;
+                &lt;span class="badge text-bg-success"&gt;
+                    ✅ Pass
+                &lt;/span&gt;
+            &lt;/t&gt;
+            &lt;t t-elif="record.result.raw_value == 'fail'"&gt;
+                &lt;span class="badge text-bg-danger"&gt;
+                    ❌ Fail
+                &lt;/span&gt;
+            &lt;/t&gt;
+            &lt;t t-else=""&gt;
+                &lt;span class="badge text-bg-secondary"&gt;
+                    ⏳ Pending
+                &lt;/span&gt;
+            &lt;/t&gt;
+        &lt;/div&gt;
+        &lt;div class="text-muted"&gt;
+            🔍 &lt;field name="inspector_id"/&gt;
+        &lt;/div&gt;
+        &lt;footer&gt;
+            &lt;field name="check_date"/&gt;
+            &lt;field name="state" widget="label_selection"
+                options="{'classes': {
+                    'draft': 'info',
+                    'hod': 'warning',
+                    'md': 'primary',
+                    'approved': 'success'
+                }}" class="ms-auto"/&gt;
+        &lt;/footer&gt;
+    &lt;/t&gt;
+&lt;/templates&gt;</code></pre>
+                </div>
+            </div>
+
+            <div class="practice-box">
+                <div class="practice-header">
+                    <span class="practice-icon">✏️</span>
+                    <h4>Practice Task</h4>
+                </div>
+                <ol>
+                    <li>Update your kanban view template with <code>t-if</code>/<code>t-elif</code>/<code>t-else</code></li>
+                    <li>Create a simple PDF report for quality checks (create <code>report/quality_check_report.xml</code>)</li>
+                    <li>Register the report file in <code>__manifest__.py</code></li>
+                    <li>Upgrade module, open a quality check, and print the report</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- ====== TOPIC 5: HANDS-ON LAB ====== -->
+        <section id="topic5" class="section">
+            <div class="section-header">
+                <span class="topic-number">05</span>
+                <h2>Hands-On Lab — Build Complete Views</h2>
+            </div>
+            <p>
+                Time to put it all together. In this lab, you'll create a complete set of views
+                for the <code>quality_control</code> module.
+            </p>
+
+            <h3>Lab Checklist</h3>
+            <div class="lab-checklist">
+                <label class="check-item">
+                    <input type="checkbox" id="lab1">
+                    <span>Enhanced List View with decorations and badges</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" id="lab2">
+                    <span>Complete Form View with header, statusbar, groups, notebook</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" id="lab3">
+                    <span>Kanban View with QWeb conditional rendering</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" id="lab4">
+                    <span>Search View with filters and group-by options</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" id="lab5">
+                    <span>Calendar View using check_date</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" id="lab6">
+                    <span>Updated action with all view modes</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" id="lab7">
+                    <span>Updated __manifest__.py with all new files</span>
+                </label>
+            </div>
+
+            <h3>Complete quality_check_views.xml</h3>
+            <p>Here's the full file putting everything together:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">views/quality_check_views.xml — COMPLETE</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;odoo&gt;
+
+    &lt;!-- ======================== --&gt;
+    &lt;!-- LIST VIEW                --&gt;
+    &lt;!-- ======================== --&gt;
+    &lt;record id="view_quality_check_tree" model="ir.ui.view"&gt;
+        &lt;field name="name"&gt;quality.check.list&lt;/field&gt;
+        &lt;field name="model"&gt;quality.check&lt;/field&gt;
+        &lt;field name="arch" type="xml"&gt;
+            &lt;list string="Quality Checks"
+                  default_order="check_date desc"
+                  decoration-danger="result == 'fail'"
+                  decoration-success="result == 'pass'"&gt;
+                &lt;field name="name" decoration-bf="1"/&gt;
+                &lt;field name="inspector_id"/&gt;
+                &lt;field name="check_date"/&gt;
+                &lt;field name="result"/&gt;
+                &lt;field name="state" widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-warning="state == 'hod'"
+                    decoration-primary="state == 'md'"
+                    decoration-success="state == 'approved'"/&gt;
+            &lt;/list&gt;
+        &lt;/field&gt;
+    &lt;/record&gt;
+
+    &lt;!-- ======================== --&gt;
+    &lt;!-- FORM VIEW                --&gt;
+    &lt;!-- ======================== --&gt;
+    &lt;record id="view_quality_check_form" model="ir.ui.view"&gt;
+        &lt;field name="name"&gt;quality.check.form&lt;/field&gt;
+        &lt;field name="model"&gt;quality.check&lt;/field&gt;
+        &lt;field name="arch" type="xml"&gt;
+            &lt;form string="Quality Check"&gt;
+                &lt;header&gt;
+                    &lt;button name="action_confirm"
+                            string="Send to HOD"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"/&gt;
+                    &lt;field name="state" widget="statusbar"
+                        statusbar_visible="draft,hod,md,approved"/&gt;
+                &lt;/header&gt;
+                &lt;sheet&gt;
+                    &lt;div class="oe_title"&gt;
+                        &lt;h1&gt;&lt;field name="name"/&gt;&lt;/h1&gt;
+                    &lt;/div&gt;
+                    &lt;group&gt;
+                        &lt;group string="Inspector Info"&gt;
+                            &lt;field name="inspector_id"/&gt;
+                            &lt;field name="additional_inspector_ids"
+                                   widget="many2many_tags"/&gt;
+                        &lt;/group&gt;
+                        &lt;group string="Check Details"&gt;
+                            &lt;field name="check_date"/&gt;
+                            &lt;field name="result"/&gt;
+                        &lt;/group&gt;
+                    &lt;/group&gt;
+                    &lt;group&gt;
+                        &lt;field name="remarks"
+                               placeholder="Enter remarks..."/&gt;
+                    &lt;/group&gt;
+                    &lt;notebook&gt;
+                        &lt;page string="Product Lines"
+                              name="product_lines"&gt;
+                            &lt;field name="quantity_lines"&gt;
+                                &lt;list string="Product Lines"
+                                      editable="bottom"&gt;
+                                    &lt;field name="product_id"/&gt;
+                                    &lt;field name="rec_qty"/&gt;
+                                    &lt;field name="damage_qty"/&gt;
+                                    &lt;field name="remain_qty"/&gt;
+                                &lt;/list&gt;
+                            &lt;/field&gt;
+                        &lt;/page&gt;
+                    &lt;/notebook&gt;
+                &lt;/sheet&gt;
+            &lt;/form&gt;
+        &lt;/field&gt;
+    &lt;/record&gt;
+
+    &lt;!-- ======================== --&gt;
+    &lt;!-- KANBAN VIEW              --&gt;
+    &lt;!-- ======================== --&gt;
+    &lt;record id="view_quality_check_kanban" model="ir.ui.view"&gt;
+        &lt;field name="name"&gt;quality.check.kanban&lt;/field&gt;
+        &lt;field name="model"&gt;quality.check&lt;/field&gt;
+        &lt;field name="arch" type="xml"&gt;
+            &lt;kanban default_group_by="state"
+                    class="o_kanban_mobile"&gt;
+                &lt;field name="name"/&gt;
+                &lt;field name="inspector_id"/&gt;
+                &lt;field name="check_date"/&gt;
+                &lt;field name="result"/&gt;
+                &lt;field name="state"/&gt;
+                &lt;templates&gt;
+                    &lt;t t-name="card"&gt;
+                        &lt;div class="d-flex justify-content-between mb-2"&gt;
+                            &lt;field name="name" class="fw-bold fs-5"/&gt;
+                            &lt;t t-if="record.result.raw_value == 'pass'"&gt;
+                                &lt;span class="badge text-bg-success"&gt;
+                                    ✅ Pass
+                                &lt;/span&gt;
+                            &lt;/t&gt;
+                            &lt;t t-elif="record.result.raw_value == 'fail'"&gt;
+                                &lt;span class="badge text-bg-danger"&gt;
+                                    ❌ Fail
+                                &lt;/span&gt;
+                            &lt;/t&gt;
+                            &lt;t t-else=""&gt;
+                                &lt;span class="badge text-bg-secondary"&gt;
+                                    ⏳ Pending
+                                &lt;/span&gt;
+                            &lt;/t&gt;
+                        &lt;/div&gt;
+                        &lt;div class="text-muted"&gt;
+                            🔍 &lt;field name="inspector_id"/&gt;
+                        &lt;/div&gt;
+                        &lt;footer&gt;
+                            &lt;field name="check_date"/&gt;
+                        &lt;/footer&gt;
+                    &lt;/t&gt;
+                &lt;/templates&gt;
+            &lt;/kanban&gt;
+        &lt;/field&gt;
+    &lt;/record&gt;
+
+    &lt;!-- ======================== --&gt;
+    &lt;!-- SEARCH VIEW              --&gt;
+    &lt;!-- ======================== --&gt;
+    &lt;record id="view_quality_check_search" model="ir.ui.view"&gt;
+        &lt;field name="name"&gt;quality.check.search&lt;/field&gt;
+        &lt;field name="model"&gt;quality.check&lt;/field&gt;
+        &lt;field name="arch" type="xml"&gt;
+            &lt;search string="Search Quality Checks"&gt;
+                &lt;field name="name" string="Reference"/&gt;
+                &lt;field name="inspector_id"/&gt;
+                &lt;separator/&gt;
+                &lt;filter name="filter_draft" string="Draft"
+                    domain="[('state', '=', 'draft')]"/&gt;
+                &lt;filter name="filter_approved" string="Approved"
+                    domain="[('state', '=', 'approved')]"/&gt;
+                &lt;separator/&gt;
+                &lt;filter name="filter_pass" string="Passed"
+                    domain="[('result', '=', 'pass')]"/&gt;
+                &lt;filter name="filter_fail" string="Failed"
+                    domain="[('result', '=', 'fail')]"/&gt;
+                &lt;group&gt;
+                    &lt;filter name="group_state" string="Status"
+                        context="{'group_by': 'state'}"/&gt;
+                    &lt;filter name="group_inspector" string="Inspector"
+                        context="{'group_by': 'inspector_id'}"/&gt;
+                    &lt;filter name="group_result" string="Result"
+                        context="{'group_by': 'result'}"/&gt;
+                &lt;/group&gt;
+            &lt;/search&gt;
+        &lt;/field&gt;
+    &lt;/record&gt;
+
+    &lt;!-- ======================== --&gt;
+    &lt;!-- CALENDAR VIEW            --&gt;
+    &lt;!-- ======================== --&gt;
+    &lt;record id="view_quality_check_calendar" model="ir.ui.view"&gt;
+        &lt;field name="name"&gt;quality.check.calendar&lt;/field&gt;
+        &lt;field name="model"&gt;quality.check&lt;/field&gt;
+        &lt;field name="arch" type="xml"&gt;
+            &lt;calendar string="Quality Checks"
+                      date_start="check_date"
+                      color="result"
+                      mode="month"
+                      quick_create="0"&gt;
+                &lt;field name="name"/&gt;
+                &lt;field name="inspector_id"/&gt;
+                &lt;field name="result"/&gt;
+            &lt;/calendar&gt;
+        &lt;/field&gt;
+    &lt;/record&gt;
+
+    &lt;!-- ======================== --&gt;
+    &lt;!-- WINDOW ACTION            --&gt;
+    &lt;!-- ======================== --&gt;
+    &lt;record id="action_quality_check" model="ir.actions.act_window"&gt;
+        &lt;field name="name"&gt;Quality Checks&lt;/field&gt;
+        &lt;field name="res_model"&gt;quality.check&lt;/field&gt;
+        &lt;field name="view_mode"&gt;list,kanban,form,calendar&lt;/field&gt;
+        &lt;field name="search_view_id"
+               ref="view_quality_check_search"/&gt;
+    &lt;/record&gt;
+
+&lt;/odoo&gt;</code></pre>
+            </div>
+
+            <h3>Verification Steps</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">Terminal Commands</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code># Restart Odoo and upgrade the module
+./odoo-bin -c odoo.conf -u quality_control --stop-after-init
+
+# Then start normally
+./odoo-bin -c odoo.conf
+
+# Check in browser:
+# 1. Open Quality Check menu
+# 2. Verify list view has colored rows and badges
+# 3. Switch to kanban view - verify cards with conditional icons
+# 4. Open a record - verify form with header, statusbar, groups
+# 5. Switch to calendar view - verify dates on calendar
+# 6. Test search filters and group-by options</code></pre>
+            </div>
+        </section>
+
+        <!-- ====== BONUS TIPS ====== -->
+        <section id="bonus" class="section">
+            <div class="section-header">
+                <span class="topic-number">🎁</span>
+                <h2>Bonus Tips & Common Pitfalls</h2>
+            </div>
+
+            <h3>Odoo 19 CE Specific Changes</h3>
+            <div class="tip-grid">
+                <div class="tip-card">
+                    <h4>❌ attrs is Dead</h4>
+                    <p>
+                        <code>attrs="{'invisible': [...]}"</code> no longer works in Odoo 17+.
+                        Use <code>invisible="python_expression"</code> directly.
+                    </p>
+                </div>
+                <div class="tip-card">
+                    <h4>📋 &lt;list&gt; not &lt;tree&gt;</h4>
+                    <p>
+                        <code>&lt;tree&gt;</code> still works but is deprecated.
+                        Use <code>&lt;list&gt;</code> tag in new code.
+                    </p>
+                </div>
+                <div class="tip-card">
+                    <h4>🎴 t-name="card"</h4>
+                    <p>
+                        Kanban template name changed from <code>kanban-box</code> to <code>card</code>
+                        in newer Odoo versions.
+                    </p>
+                </div>
+                <div class="tip-card">
+                    <h4>📤 t-out over t-esc</h4>
+                    <p>
+                        In reports, prefer <code>t-out</code> (Odoo 17+) over <code>t-esc</code>.
+                        Both work but <code>t-out</code> is the modern way.
+                    </p>
+                </div>
+                <div class="tip-card">
+                    <h4>🏷️ column_invisible</h4>
+                    <p>
+                        To hide columns conditionally in list view, use <code>column_invisible</code>
+                        instead of <code>invisible</code> (which hides the cell, not the column).
+                    </p>
+                </div>
+                <div class="tip-card">
+                    <h4>🔑 Always Use name=</h4>
+                    <p>
+                        Give <code>name</code> attributes to <code>&lt;page&gt;</code>, <code>&lt;group&gt;</code>, etc.
+                        Makes inheritance targeting much easier.
+                    </p>
+                </div>
+            </div>
+
+            <h3>Debugging XML Errors</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">Common XML Errors & Fixes</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+<pre><code># Error: "ParseError: Opening and Ending tag mismatch"
+# Fix: Check every tag has proper closing. Use XML validator.
+
+# Error: "External ID not found: module.xml_id"
+# Fix: The referenced view doesn't exist. Check:
+#   - Is the module installed?
+#   - Is the XML file loaded in __manifest__.py?
+#   - Is the XML ID spelled correctly?
+
+# Error: "Field 'xxx' does not exist"
+# Fix: The field isn't in the Python model.
+#   - Check field name spelling
+#   - Make sure the Python file is imported in __init__.py
+
+# Error: "Invalid view definition"
+# Fix: Your XML architecture is wrong.
+#   - Check for duplicate field names in form
+#   - Ensure &lt;group&gt; is inside &lt;sheet&gt;
+#   - Ensure &lt;header&gt; is direct child of &lt;form&gt;</code></pre>
+            </div>
+
+            <h3>Quick Reference Card</h3>
+            <div class="ref-card">
+                <div class="ref-card-col">
+                    <h4>View Tags</h4>
+                    <ul>
+                        <li><code>&lt;list&gt;</code> — List/Table view</li>
+                        <li><code>&lt;form&gt;</code> — Form view</li>
+                        <li><code>&lt;kanban&gt;</code> — Card view</li>
+                        <li><code>&lt;search&gt;</code> — Search filters</li>
+                        <li><code>&lt;calendar&gt;</code> — Calendar view</li>
+                        <li><code>&lt;pivot&gt;</code> — Pivot table</li>
+                        <li><code>&lt;graph&gt;</code> — Charts</li>
+                    </ul>
+                </div>
+                <div class="ref-card-col">
+                    <h4>Form Elements</h4>
+                    <ul>
+                        <li><code>&lt;header&gt;</code> — Buttons + statusbar</li>
+                        <li><code>&lt;sheet&gt;</code> — Main content</li>
+                        <li><code>&lt;group&gt;</code> — Column layout</li>
+                        <li><code>&lt;notebook&gt;</code> — Tab container</li>
+                        <li><code>&lt;page&gt;</code> — Individual tab</li>
+                        <li><code>&lt;chatter/&gt;</code> — Messages</li>
+                        <li><code>&lt;separator/&gt;</code> — Visual line</li>
+                    </ul>
+                </div>
+                <div class="ref-card-col">
+                    <h4>Common Widgets</h4>
+                    <ul>
+                        <li><code>statusbar</code> — Status pipeline</li>
+                        <li><code>badge</code> — Colored label</li>
+                        <li><code>many2many_tags</code> — Tag pills</li>
+                        <li><code>monetary</code> — Currency display</li>
+                        <li><code>image</code> — Image field</li>
+                        <li><code>handle</code> — Drag to reorder</li>
+                        <li><code>percentage</code> — Percent display</li>
+                    </ul>
+                <div class="ref-card-col">
+                    <h4>XPath Positions</h4>
+                    <ul>
+                        <li><code>after</code> — Add after element</li>
+                        <li><code>before</code> — Add before element</li>
+                        <li><code>inside</code> — Add inside element</li>
+                        <li><code>replace</code> — Replace element</li>
+                        <li><code>attributes</code> — Modify attributes</li>
+                    </ul>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- NEW SECTION: QWeb Templates & Reporting -->
+        <section id="section-reporting" class="topic-section">
+            <h2 class="section-title">QWeb Templates &amp; Reporting</h2>
+            <p>Today we focus on QWeb templates, a core technology in Odoo for generating dynamic web pages and PDF reports. We will create a custom Quality Check PDF report and inherit an existing Invoice report.</p>
+
+            <h3>1. Custom Quality Check PDF Report</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/reports/quality_check_report.xml</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;odoo&gt;
+    &lt;!-- Report Action --&gt;
+    &lt;record id="action_report_quality_check" model="ir.actions.report"&gt;
+        &lt;field name="name"&gt;Quality Check PDF&lt;/field&gt;
+        &lt;field name="model"&gt;quality.check&lt;/field&gt;
+        &lt;field name="report_type"&gt;qweb-pdf&lt;/field&gt;
+        &lt;field name="report_name"&gt;quality_control.report_quality_check&lt;/field&gt;
+        &lt;field name="binding_model_id" ref="model_quality_check"/&gt;
+        &lt;field name="binding_type"&gt;report&lt;/field&gt;
+    &lt;/record&gt;
+
+    &lt;!-- QWeb Template with CSS Classes --&gt;
+    &lt;template id="report_quality_check"&gt;
+        &lt;t t-call="web.html_container"&gt;
+            &lt;t t-foreach="docs" t-as="o"&gt;
+                &lt;t t-call="web.external_layout"&gt;
+                    &lt;div class="page"&gt;
+                        &lt;style&gt;
+                            .qc-header { background-color: #f8f9fa; padding: 15px; }
+                            .qc-title { color: #2c3e50; font-weight: bold; }
+                        &lt;/style&gt;
+                        &lt;div class="qc-header"&gt;
+                            &lt;h2 class="qc-title"&gt;Quality Check Report: &lt;span t-field="o.name"/&gt;&lt;/h2&gt;
+                        &lt;/div&gt;
+                        &lt;p&gt;&lt;strong&gt;Inspector:&lt;/strong&gt; &lt;span t-field="o.inspector_id.name"/&gt;&lt;/p&gt;
+                        &lt;p&gt;&lt;strong&gt;Result:&lt;/strong&gt; &lt;span t-field="o.result"/&gt;&lt;/p&gt;
+                    &lt;/div&gt;
+                &lt;/t&gt;
+            &lt;/t&gt;
+        &lt;/t&gt;
+    &lt;/template&gt;
+&lt;/odoo&gt;</code></pre>
+            </div>
+            
+            <h3>2. Report Inheritance (Invoice)</h3>
+            <p>Inheriting a QWeb report is similar to inheriting views. We use <code>&lt;xpath&gt;</code> to insert our custom QA section directly into the core invoice.</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/reports/invoice_report_inherit.xml</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-xml">&lt;template id="report_invoice_document_inherit_quality_control" inherit_id="account.report_invoice_document"&gt;
+    &lt;xpath expr="//div[@id='informations']" position="inside"&gt;
+        &lt;div class="col-auto col-3 mw-100 mb-2" t-if="o.move_type == 'out_invoice'" name="quality_control_info"&gt;
+            &lt;strong&gt;Quality Assured:&lt;/strong&gt;
+            &lt;p class="m-0" style="color: green; font-weight: bold;"&gt;Verified by NTech QA&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/xpath&gt;
+&lt;/template&gt;</code></pre>
+            </div>
+        </section>
+
+        <!-- NEW SECTION: Business Logic -->
+        <section id="section-business-logic" class="topic-section">
+            <h2 class="section-title">Business Logic (ORM Methods)</h2>
+            <p>Odoo's Object-Relational Mapping (ORM) framework gives us powerful Python decorators to handle dynamic business rules. The core decorators you will use frequently are <code>@api.depends</code>, <code>@api.onchange</code>, and <code>@api.constrains</code>.</p>
+            
+            <div class="callout callout-info">
+                <strong>Understanding self:</strong> In Odoo ORM methods, <code>self</code> represents a <strong>Recordset</strong> (a collection of records). It is <em>not</em> just a single record! Always use a <code>for record in self:</code> loop when computing or constraining values to avoid <code>ValueError: Expected singleton</code> errors.
+            </div>
+
+            <h3>1. Computed Fields &amp; Onchange</h3>
+            <p>What is the difference between them?</p>
+            <ul>
+                <li><strong>Computed Fields (<code>@api.depends</code>):</strong> Used to calculate a field's value dynamically based on other fields. If <code>store=True</code> is set, the value is saved to the database. If not, it is computed on-the-fly every time the record is loaded.</li>
+                <li><strong>Onchange (<code>@api.onchange</code>):</strong> Triggers immediately in the user interface <em>before</em> saving to the database. It is primarily used to return warnings, update domains, or pre-fill fields when a user types.</li>
+            </ul>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control_line.py</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">    # The field definition must include the compute method name
+    remain_qty = fields.Float('Remain Qty', compute='_compute_remain_qty', store=True)
+
+    @api.depends('rec_qty', 'damage_qty')
+    def _compute_remain_qty(self):
+        for line in self:
+            line.remain_qty = line.rec_qty - line.damage_qty
+
+    @api.onchange('damage_qty', 'rec_qty')
+    def _onchange_damage_qty(self):
+        # Triggers in the browser as the user types
+        if self.damage_qty &gt; self.rec_qty:
+            return {
+                'warning': {
+                    'title': 'Invalid Quantity', 
+                    'message': 'Damage cannot exceed Received Quantity.'
+                }
+            }
+</code></pre>
+            </div>
+            
+            <h3>2. Data Validation: Python vs SQL Constraints</h3>
+            <p>When you need to ensure data integrity, you have two options:</p>
+            <ul>
+                <li><strong><code>_sql_constraints</code>:</strong> Executed directly by the PostgreSQL database. Extremely fast and prevents duplicate names or standard data checks.</li>
+                <li><strong><code>@api.constrains</code>:</strong> Executed by Python. Slower, but allows for complex conditional logic, API calls, or date comparisons that SQL cannot easily do.</li>
+            </ul>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control.py</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">    # 1. SQL Constraint: Enforced by PostgreSQL
+    _sql_constraints = [
+        ('name_uniq', 'unique (name)', 'The Reference Name must be unique!')
+    ]
+
+    # 2. Python Constraint: Enforced by Odoo ORM
+    @api.constrains('check_date')
+    def _check_date(self):
+        for record in self:
+            # Complex check using Python libraries
+            if record.check_date &gt; fields.Date.today():
+                raise ValidationError("Check date cannot be in the future.")</code></pre>
+            </div>
+
+            <h3>Relevant Reading Materials</h3>
+            <div class="callout callout-tip">
+                <strong>Odoo Official Documentation</strong>
+                <ul>
+                    <li><a href="https://www.odoo.com/documentation/19.0/developer/reference/backend/orm.html#computed-fields" target="_blank">ORM API: Computed Fields</a></li>
+                    <li><a href="https://www.odoo.com/documentation/19.0/developer/reference/backend/orm.html#onchange-updating-ui-on-the-fly" target="_blank">ORM API: Onchange Methods</a></li>
+                    <li><a href="https://www.odoo.com/documentation/19.0/developer/howtos/backend.html#howto-orm-constraints" target="_blank">Tutorial: Constraints</a></li>
+                </ul>
+            </div>
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer class="main-footer">
+            <p>Module 5 — XML Structure in Odoo 19 Community Edition</p>
+            <p>Ntech Batch 2 &bull; Full-Stack Odoo Development Course</p>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

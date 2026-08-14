@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ntech Community | Odoo 19 Course Directory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #334155;
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #64748b;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .module-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .module-badge {
+            display: inline-block;
+            background-color: #e0e7ff;
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+
+        .module-desc {
+            font-size: 0.95rem;
+            color: #475569;
+            flex-grow: 1;
+            margin-bottom: 24px;
+        }
+
+        .module-btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            text-align: center;
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            transition: background-color 0.2s;
+        }
+
+        .module-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <h1>Ntech Community &bull; Batch 2</h1>
+            <p>Full-Stack Odoo 19 Development Course Lectures</p>
+        </header>
+
+        <div class="course-grid">
+            <!-- Module 5 -->
+            <div class="module-card">
+                <span class="module-badge">Module 5</span>
+                <h2 class="module-title">XML Structure &amp; QWeb</h2>
+                <p class="module-desc">Learn about Odoo's XML architecture, creating List, Form, Kanban, Search and Calendar views, XML inheritance (XPath), and Business Logic ORM methods.</p>
+                <a href="module5_lecture/index.html" class="module-btn">Open Lecture Sheet</a>
+            </div>
+
+            <!-- Module 6 -->
+            <div class="module-card">
+                <span class="module-badge">Module 6</span>
+                <h2 class="module-title">Odoo Website Development</h2>
+                <p class="module-desc">Master public-facing pages, HTTP routing (Controllers), QWeb Website Templates, form submissions, and Customer Portal Security integration.</p>
+                <a href="module6_website_lecture/index.html" class="module-btn">Open Lecture Sheet</a>
+            </div>
+            
+            <!-- Future Modules will be added here by the AI -->
+        </div>
+
+        <footer class="footer">
+            &copy; Ntech Community. Course built for Odoo 19 Community Edition.
+        </footer>
+    </div>
+
+</body>
+</html>
