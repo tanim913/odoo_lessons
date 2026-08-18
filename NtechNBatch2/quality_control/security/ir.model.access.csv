@@ -1,6 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_quality_check,quality.check.,model_quality_check,,1,1,1,1
+access_quality_check,quality.check,model_quality_check,,1,1,1,1
 access_quality_check_line,quality.check.line,model_quality_check_line,,1,1,1,1
-access_job_application_public,quality.job.application.public,model_quality_job_application,base.group_public,1,0,1,0
+access_job_application_public,quality.job.application.public,model_quality_job_application,base.group_public,0,0,1,0
 access_job_application_portal,quality.job.application.portal,model_quality_job_application,base.group_portal,1,0,0,0
 access_job_application_user,quality.job.application.user,model_quality_job_application,base.group_user,1,1,1,1

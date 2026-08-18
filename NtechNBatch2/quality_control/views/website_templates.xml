@@ -1,6 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Job Application Form Template -->
+
+    <!-- ============================================================
+         PUBLIC WEBSITE: Quality Checks Page
+         Demonstrates qcontext dict rendering with t-esc, t-foreach, t-if
+         ============================================================ -->
+    <template id="quality_checks_page_template" name="Quality Checks Page">
+        <t t-call="website.layout">
+            <div id="wrap" class="container mt-5 mb-5">
+                <!-- t-esc safely outputs a variable (HTML-escaped) -->
+                <h2><t t-esc="page_title"/></h2>
+                <p>Company: <strong t-esc="company_name"/></p>
+                <hr/>
+
+                <!-- t-if: conditional rendering -->
+                <t t-if="not checks">
+                    <div class="alert alert-info">
+                        No quality checks found.
+                    </div>
+                </t>
+
+                <t t-if="checks">
+                    <div class="row">
+                        <!-- t-foreach: loop through recordset -->
+                        <t t-foreach="checks" t-as="check">
+                            <div class="col-md-4 mb-4">
+                                <div class="card shadow-sm h-100">
+                                    <div class="card-body">
+                                        <!-- t-field: renders field with proper widget -->
+                                        <h5 class="card-title" t-field="check.name"/>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                <!-- t-att-*: dynamic attribute based on Python expression -->
+                                                <span t-att-class="'badge ' + ('bg-success' if check.result == 'pass' else 'bg-danger' if check.result == 'fail' else 'bg-secondary')"
+                                                      t-field="check.state"/>
+                                            </small>
+                                        </p>
+                                        <!-- t-if with t-else: conditional rendering -->
+                                        <t t-if="check.remarks">
+                                            <p class="card-text" t-esc="check.remarks"/>
+                                        </t>
+                                        <t t-else="">
+                                            <p class="card-text text-muted">No remarks available.</p>
+                                        </t>
+                                    </div>
+                                    <div class="card-footer text-muted">
+                                        Checked: <span t-field="check.check_date"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- ============================================================
+         PUBLIC WEBSITE: Job Application Form
+         ============================================================ -->
     <template id="job_application_form_template" name="Job Application Form">
         <t t-call="website.layout">
             <div id="wrap" class="container mt-5 mb-5">
@@ -11,30 +69,56 @@
                                 <h3 class="mb-0">Job Application Form</h3>
                             </div>
                             <div class="card-body">
+                                <!-- form action must match @http.route in controller -->
                                 <form action="/jobs/submit" method="post" enctype="multipart/form-data">
+                                    <!-- CRITICAL: csrf_token prevents Cross-Site Request Forgery -->
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                    
+
                                     <div class="mb-3">
-                                        <label for="name" class="form-label font-weight-bold">Full Name</label>
-                                        <input type="text" class="form-control" id="name" name="name" required="required" placeholder="Enter your full name"/>
+                                        <label for="name" class="form-label fw-bold">Full Name</label>
+                                        <input type="text" class="form-control" id="name" name="name"
+                                               required="required" placeholder="Enter your full name"/>
                                     </div>
-                                    
+
                                     <div class="mb-3">
-                                        <label for="email" class="form-label font-weight-bold">Email address</label>
-                                        <input type="email" class="form-control" id="email" name="email" required="required" placeholder="name@example.com"/>
+                                        <label for="email" class="form-label fw-bold">Email Address</label>
+                                        <input type="email" class="form-control" id="email" name="email"
+                                               required="required" placeholder="name@example.com"/>
                                     </div>
-                                    
+
                                     <div class="mb-3">
-                                        <label for="phone" class="form-label font-weight-bold">Phone Number</label>
-                                        <input type="tel" class="form-control" id="phone" name="phone" required="required" placeholder="Your phone number"/>
+                                        <label for="phone" class="form-label fw-bold">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone"
+                                               required="required" placeholder="Your phone number"/>
                                     </div>
-                                    
+
+                                    <!-- Dynamic dropdown from qcontext -->
                                     <div class="mb-3">
-                                        <label for="resume" class="form-label font-weight-bold">Upload Resume (PDF)</label>
-                                        <input class="form-control" type="file" id="resume" name="resume" accept=".pdf" required="required"/>
+                                        <label for="position" class="form-label fw-bold">Position Applied For</label>
+                                        <select class="form-select" id="position" name="position" required="required">
+                                            <!-- t-foreach on a Python list of tuples -->
+                                            <t t-foreach="positions" t-as="pos">
+                                                <!-- t-att-value sets the value attribute dynamically -->
+                                                <option t-att-value="pos[0]" t-esc="pos[1]"/>
+                                            </t>
+                                        </select>
                                     </div>
-                                    
-                                    <button type="submit" class="btn btn-primary w-100 mt-3">Submit Application</button>
+
+                                    <div class="mb-3">
+                                        <label for="cover_letter" class="form-label fw-bold">Cover Letter</label>
+                                        <textarea class="form-control" id="cover_letter" name="cover_letter"
+                                                  rows="4" placeholder="Tell us why you're a great fit..."/>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="resume" class="form-label fw-bold">Upload Resume (PDF)</label>
+                                        <input class="form-control" type="file" id="resume" name="resume"
+                                               accept=".pdf" required="required"/>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary w-100 mt-3">
+                                        Submit Application
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -44,64 +128,112 @@
         </t>
     </template>
 
-    <!-- Job Application Success Template -->
+    <!-- ============================================================
+         PUBLIC WEBSITE: Application Success Page
+         ============================================================ -->
     <template id="job_application_success_template" name="Application Success">
         <t t-call="website.layout">
             <div id="wrap" class="container mt-5 mb-5 text-center">
                 <div class="card shadow-sm p-5">
-                    <i class="fa fa-check-circle text-success" style="font-size: 80px;"></i>
+                    <i class="fa fa-check-circle text-success" style="font-size: 80px;"/>
                     <h2 class="mt-4">Application Submitted Successfully!</h2>
                     <p class="lead mt-3">
-                        Thank you, <strong t-esc="name"/>! Your application has been received. 
+                        Thank you, <strong t-esc="name"/>! Your application for
+                        <strong t-esc="position"/> has been received.
                         We will contact you at <strong t-esc="email"/> regarding the next steps.
                     </p>
                     <div class="mt-4">
                         <a href="/" class="btn btn-primary">Return to Homepage</a>
+                        <a href="/jobs/apply" class="btn btn-outline-secondary ms-2">Apply Again</a>
                     </div>
                 </div>
             </div>
         </t>
     </template>
 
-    <!-- Portal My Home entry -->
-    <template id="portal_my_home_job_applications" name="Show Applications in Portal" inherit_id="portal.portal_my_home" customize_show="True" priority="100">
-        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+    <!-- ============================================================
+         PORTAL HOME: Add "Job Applications" card
+         Follows the same pattern as sale module (portal_client_category)
+         See: addons/sale/views/sale_portal_templates.xml
+         ============================================================ -->
+    <template id="portal_my_home_job_applications"
+              name="Job Applications Portal Card"
+              inherit_id="portal.portal_my_home"
+              customize_show="True"
+              priority="50">
+        <!-- Enable the client category section -->
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_client_category_enable" t-value="True"/>
+        </xpath>
+        <!-- Add our card inside the client category -->
+        <div id="portal_client_category" position="inside">
             <t t-call="portal.portal_docs_entry">
-                <t t-set="title">My Job Applications</t>
+                <t t-set="title">Job Applications</t>
+                <t t-set="text">View the status of your submitted job applications</t>
                 <t t-set="url" t-value="'/my/applications'"/>
-                <t t-set="placeholder_count" t-value="'job_count'"/>
+                <t t-set="placeholder_count" t-value="'job_application_count'"/>
             </t>
+        </div>
+    </template>
+
+    <!-- ============================================================
+         PORTAL: Breadcrumbs for Job Applications
+         ============================================================ -->
+    <template id="portal_my_home_menu_applications"
+              name="Portal Breadcrumbs: Job Applications"
+              inherit_id="portal.portal_breadcrumbs"
+              priority="50">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'my_applications'" class="breadcrumb-item active">
+                Job Applications
+            </li>
         </xpath>
     </template>
 
-    <!-- Portal Applications List View -->
-    <template id="portal_my_applications" name="My Applications">
+    <!-- ============================================================
+         PORTAL: Applications List View
+         ============================================================ -->
+    <template id="portal_my_applications" name="My Job Applications">
         <t t-call="portal.portal_layout">
             <t t-set="breadcrumbs_searchbar" t-value="True"/>
 
             <t t-call="portal.portal_searchbar">
                 <t t-set="title">Job Applications</t>
             </t>
-            
+
             <t t-if="not applications">
-                <p>You have no job applications yet.</p>
+                <div class="alert alert-warning" role="alert">
+                    You have no job applications yet.
+                    <a href="/jobs/apply" class="alert-link">Apply now!</a>
+                </div>
             </t>
-            
+
             <t t-if="applications" t-call="portal.portal_table">
                 <thead>
                     <tr class="active">
-                        <th>Application Name</th>
+                        <th>Applicant Name</th>
+                        <th>Position</th>
                         <th>Email</th>
-                        <th>Status</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end">Applied On</th>
                     </tr>
                 </thead>
                 <tbody>
                     <t t-foreach="applications" t-as="app">
                         <tr>
-                            <td><span t-field="app.name"/></td>
-                            <td><span t-field="app.email"/></td>
                             <td>
-                                <span class="badge rounded-pill text-bg-info" t-field="app.state"/>
+                                <a t-attf-href="/my/applications/#{app.id}" title="View Details">
+                                    <span t-field="app.name"/>
+                                </a>
+                            </td>
+                            <td><span t-field="app.position"/></td>
+                            <td><span t-field="app.email"/></td>
+                            <td class="text-center">
+                                <span t-att-class="'badge rounded-pill ' + ('text-bg-secondary' if app.state == 'draft' else 'text-bg-info' if app.state == 'review' else 'text-bg-success' if app.state == 'accepted' else 'text-bg-danger')"
+                                      t-field="app.state"/>
+                            </td>
+                            <td class="text-end">
+                                <span t-field="app.create_date" t-options="{'widget': 'date'}"/>
                             </td>
                         </tr>
                     </t>
@@ -109,4 +241,73 @@
             </t>
         </t>
     </template>
+
+    <!-- ============================================================
+         PORTAL: Application Detail View
+         ============================================================ -->
+    <template id="portal_my_application_detail" name="Job Application Detail" inherit_id="portal.portal_sidebar" primary="True">
+        <t t-call="portal.portal_layout" position="inside">
+            <t t-set="o_portal_fullwidth_alert" groups="base.group_user">
+                <t t-call="portal.portal_back_in_edit_mode">
+                    <t t-set="backend_url" t-value="'/web#model=quality.job.application&amp;id=%s&amp;view_type=form' % (application.id)"/>
+                </t>
+            </t>
+        </t>
+
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <div class="row mt16 o_portal_sale_sidebar">
+                <!-- Sidebar -->
+                <t t-call="portal.portal_record_sidebar">
+                    <t t-set="classes" t-value="'col-lg-3 d-print-none'"/>
+                    <t t-set="title">
+                        <h4 class="mb-0 text-break" t-field="application.name"/>
+                    </t>
+                    <t t-set="entries">
+                        <ul class="list-group list-group-flush flex-wrap flex-row flex-lg-column">
+                            <li class="list-group-item">
+                                <div class="small mb-1">Status:</div>
+                                <span t-att-class="'badge rounded-pill ' + ('text-bg-secondary' if application.state == 'draft' else 'text-bg-info' if application.state == 'review' else 'text-bg-success' if application.state == 'accepted' else 'text-bg-danger')"
+                                      t-field="application.state"/>
+                            </li>
+                        </ul>
+                    </t>
+                </t>
+
+                <!-- Page content -->
+                <div id="application_content" class="col-12 col-lg-9 mt-5 mt-lg-0">
+                    <div class="card shadow-sm p-4">
+                        <h3 class="mb-4">Application Details</h3>
+                        <div class="row mb-4">
+                            <div class="col-12 col-md-6 mb-2 mb-md-0">
+                                <strong class="text-muted d-block">Applied On:</strong> 
+                                <span t-field="application.create_date" t-options='{"widget": "date"}'/>
+                            </div>
+                            <div class="col-12 col-md-6 mb-2 mb-md-0">
+                                <strong class="text-muted d-block">Position:</strong> 
+                                <span t-field="application.position"/>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-12 col-md-6 mb-2 mb-md-0">
+                                <strong class="text-muted d-block">Email:</strong> 
+                                <span t-field="application.email"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <strong class="text-muted d-block mb-2">Cover Letter:</strong>
+                                <div class="p-3 bg-light rounded" t-if="application.cover_letter">
+                                    <span t-field="application.cover_letter" t-options="{'widget': 'text'}"/>
+                                </div>
+                                <div class="text-muted" t-else="">
+                                    <em>No cover letter provided.</em>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
 </odoo>

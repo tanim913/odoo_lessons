@@ -39,10 +39,13 @@
                 <span class="nav-icon">🔀</span> Controllers
             </a></li>
             <li><a href="#section-templates" class="nav-link" data-section="section-templates">
-                <span class="nav-icon">🎨</span> Templates
+                <span class="nav-icon">🎨</span> QWeb Templates
             </a></li>
             <li><a href="#section-portal" class="nav-link" data-section="section-portal">
                 <span class="nav-icon">🔒</span> Portal &amp; Security
+            </a></li>
+            <li><a href="#section-handson" class="nav-link" data-section="section-handson">
+                <span class="nav-icon">🛠️</span> Hands-On
             </a></li>
         </ul>
         <div class="sidebar-footer">
@@ -65,229 +68,853 @@
     </div>
 
     <main class="content" id="content">
+        <!-- ======== HERO ======== -->
         <section id="intro" class="section hero-section">
             <div class="hero-badge">Module 6 of 10</div>
             <h1>Odoo Website Development<br><span class="gradient-text">Community Edition</span></h1>
-            <p class="hero-lead">Building public-facing pages, routing, and portal views in Odoo 19.</p>
+            <p class="hero-lead">Building public-facing pages, routing, portal views, and security in Odoo 19. From the <code>web</code> framework to a full job application portal.</p>
         </section>
 
-        <!-- SECTION: Website Basics -->
+        <!-- ================================================================
+             SECTION 1: Website Basics & Module Structure
+             ================================================================ -->
         <section id="section-basics" class="section">
             <h2>Website Basics &amp; Module Structure</h2>
-            <p>Odoo's architecture naturally follows the Model-View-Controller (MVC) pattern, even on the frontend. When building public-facing web pages, Odoo relies heavily on its <code>website</code> and <code>portal</code> core modules. To enable website capabilities in your custom module, you must explicitly declare these dependencies in your <code>__manifest__.py</code>.</p>
-            
-            <div class="callout callout-note">
-                <strong>Why 'portal' and 'website'?</strong> 
-                <ul>
-                    <li><strong>website:</strong> Provides the routing, SEO tools, and the base <code>website.layout</code> QWeb template.</li>
-                    <li><strong>portal:</strong> Provides the standard `/my/home` interface (the customer portal) where users can log in and securely view their own records like Quotes, Invoices, or Tasks.</li>
-                </ul>
+            <p>Before writing a single line of website code, you need to understand the three core modules that power Odoo's web layer. They live in <code>/odoo/odoo19-server/addons/</code> and build on top of each other.</p>
+
+            <h3>The Three Pillars</h3>
+            <table class="ref-table">
+                <thead>
+                    <tr>
+                        <th>Module</th>
+                        <th>Path</th>
+                        <th>Purpose</th>
+                        <th>Key Dependencies</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>web</code></td>
+                        <td><code>addons/web/</code></td>
+                        <td>Core HTTP framework. Provides the request/response cycle, assets bundling, RPC layer, and the backend JavaScript framework. Every Odoo module depends on this implicitly.</td>
+                        <td>None (base framework)</td>
+                    </tr>
+                    <tr>
+                        <td><code>website</code></td>
+                        <td><code>addons/website/</code></td>
+                        <td>The website builder. Adds <code>website.layout</code> template, routing with <code>website=True</code>, SEO tools, themes, multi-website support, and the drag-and-drop page editor.</td>
+                        <td><code>portal</code>, <code>web</code>, <code>http_routing</code>, <code>mail</code>, <code>auth_signup</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>website_sale</code></td>
+                        <td><code>addons/website_sale/</code></td>
+                        <td>eCommerce layer. Product catalog, cart, checkout, payment integration. Built entirely on top of <code>website</code> and <code>sale</code>.</td>
+                        <td><code>website</code>, <code>sale</code>, <code>payment</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout callout-info">
+                <strong>Dependency Chain:</strong> <code>web</code> is the foundation that everything relies on. <code>website</code> adds the public-facing layer. <code>website_sale</code> adds commerce. When you depend on <code>website</code>, you automatically get <code>portal</code> (customer dashboard), <code>http_routing</code> (slug URLs), and more.
             </div>
-            
-            <h3>Manifest Configuration</h3>
+
+            <h3>What <code>portal</code> Provides</h3>
+            <p>The <code>portal</code> module (at <code>addons/portal/</code>) gives us:</p>
+            <ul class="styled-list">
+                <li>The <code>/my/home</code> customer dashboard with card-based navigation</li>
+                <li>The <code>CustomerPortal</code> controller class we can inherit</li>
+                <li>Portal templates: <code>portal.portal_layout</code>, <code>portal.portal_searchbar</code>, <code>portal.portal_table</code></li>
+                <li>Pager utility for paginated lists</li>
+                <li>Login/signup flow via <code>auth_signup</code></li>
+            </ul>
+
+            <h3>Our Module's Manifest</h3>
+            <p>To enable website and portal features in our <code>quality_control</code> module, we declare them as dependencies:</p>
             <div class="code-block">
                 <div class="code-header">
                     <span class="file-name">quality_control/__manifest__.py</span>
                     <button class="copy-btn">Copy</button>
                 </div>
-                <pre><code class="language-python">    # The 'website' dependency allows our module to hook into the frontend.
-    'depends': ['stock', 'account', 'website', 'portal'],</code></pre>
+                <pre><code class="language-python">{
+    'name': "Quality Control",
+    'summary': "QC Section Checking for product",
+    'author': "Ntech",
+    'category': 'Ntech/',
+    'version': '0.1',
+
+    # 'website' — gives us website.layout, @http.route with website=True
+    # 'portal'  — gives us CustomerPortal, /my/home dashboard, portal templates
+    'depends': ['stock', 'account', 'website', 'portal'],
+
+    'data': [
+        'security/ir.model.access.csv',
+        'security/security.xml',
+        'views/quality_check_views.xml',
+        'views/job_application_views.xml',
+        'views/menu.xml',
+        'views/stock_picking.xml',
+        'views/website_templates.xml',       # Our website + portal templates
+        'reports/quality_check_report.xml',
+        'reports/invoice_report_inherit.xml',
+    ],
+}</code></pre>
+            </div>
+
+            <div class="callout callout-tip">
+                <strong>Explore the Base Code!</strong> Open <code>/odoo/odoo19-server/addons/website/__manifest__.py</code> and look at the <code>depends</code> list. Notice how <code>website</code> depends on <code>portal</code>, which depends on <code>web</code>. This chain determines what features you inherit.
             </div>
         </section>
 
-        <!-- SECTION: Controllers -->
+        <!-- ================================================================
+             SECTION 2: Controllers (@http.route)
+             ================================================================ -->
         <section id="section-controllers" class="section">
-            <h2>Controllers (@http.route)</h2>
-            <p>In Odoo, Controllers are classes that extend <code>http.Controller</code>. They act as the "Controller" in MVC, mapping incoming URLs to Python functions using the <code>@http.route</code> decorator.</p>
-            
+            <h2>Controllers — <code>@http.route</code></h2>
+            <p>Controllers are the <strong>C</strong> in MVC. They map URLs to Python functions. In Odoo, every controller is a class that extends <code>http.Controller</code> (or <code>CustomerPortal</code> for portal pages).</p>
+
+            <h3>1. The <code>@http.route</code> Decorator — Deep Dive</h3>
+            <p>Every parameter in <code>@http.route</code> controls how Odoo handles the incoming request:</p>
+
             <div class="anatomy-grid">
                 <div class="anatomy-item">
                     <code>route='/my/path'</code>
-                    <span>The URL endpoint. Can be a string or a list of strings for multiple paths.</span>
+                    <span>The URL endpoint. Can be a string or a list: <code>['/path', '/path/page/&lt;int:page&gt;']</code></span>
                 </div>
                 <div class="anatomy-item">
                     <code>type='http'</code>
-                    <span>The type of request. Use <code>'http'</code> for standard web pages and <code>'json'</code> for AJAX/RPC calls.</span>
+                    <span>Request type. <code>'http'</code> = standard page. <code>'json'</code> / <code>'jsonrpc'</code> = AJAX/RPC calls returning JSON.</span>
                 </div>
                 <div class="anatomy-item">
                     <code>auth='public'</code>
-                    <span>Authentication level: <code>'public'</code> (anyone), <code>'user'</code> (must be logged in), or <code>'none'</code> (framework level).</span>
+                    <span>Authentication level. Controls <em>who</em> can access this route. See details below.</span>
                 </div>
                 <div class="anatomy-item">
                     <code>website=True</code>
-                    <span>Tells Odoo to render the page within the active website's context (applying languages, themes, and menus).</span>
+                    <span>Renders within the website context (applies themes, languages, menus, header/footer).</span>
                 </div>
                 <div class="anatomy-item">
                     <code>methods=['POST']</code>
-                    <span>Restricts the route to specific HTTP methods (e.g., only allow POST for form submissions).</span>
+                    <span>Restricts to specific HTTP methods. Default is <code>['GET', 'POST']</code>.</span>
+                </div>
+                <div class="anatomy-item">
+                    <code>sitemap=False</code>
+                    <span>Excludes this route from the sitemap.xml that search engines crawl.</span>
                 </div>
             </div>
 
+            <h3>2. Authentication Levels Explained</h3>
+            <p>The <code>auth</code> parameter determines who can access your route:</p>
+            <table class="ref-table">
+                <thead>
+                    <tr>
+                        <th>auth Value</th>
+                        <th>Who Can Access</th>
+                        <th>request.env.user</th>
+                        <th>Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>'public'</code></td>
+                        <td>Everyone (logged in or not)</td>
+                        <td>Public user (guest) or actual user</td>
+                        <td>Public website pages, contact forms</td>
+                    </tr>
+                    <tr>
+                        <td><code>'user'</code></td>
+                        <td>Logged-in users only (portal + internal)</td>
+                        <td>The actual logged-in user</td>
+                        <td>Portal pages like <code>/my/applications</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>'none'</code></td>
+                        <td>Framework level — no user/database context</td>
+                        <td>N/A</td>
+                        <td>Health checks, static assets, special endpoints</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>3. Base Code Example: How <code>sale</code> Inherits Portal</h3>
+            <p>The <code>sale</code> module shows the standard pattern. Its controller at <code>addons/sale/controllers/portal.py</code> inherits <code>CustomerPortal</code>:</p>
             <div class="code-block">
                 <div class="code-header">
-                    <span class="file-name">quality_control/controllers/controllers.py</span>
+                    <span class="file-name">Base Code: addons/sale/controllers/portal.py (simplified)</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
+
+class CustomerPortal(CustomerPortal):
+
+    def _prepare_home_portal_values(self, counters):
+        """Add sales order count to portal home dashboard."""
+        values = super()._prepare_home_portal_values(counters)
+        partner = request.env.user.partner_id
+        SaleOrder = request.env['sale.order']
+
+        if 'order_count' in counters:
+            values['order_count'] = (
+                SaleOrder.search_count(self._prepare_orders_domain(partner))
+                if SaleOrder.has_access('read') else 0
+            )
+        return values
+
+    @http.route(['/my/orders', '/my/orders/page/&lt;int:page&gt;'],
+                type='http', auth='user', website=True)
+    def portal_my_orders(self, **kwargs):
+        """Render the list of sales orders."""
+        values = self._prepare_sale_portal_rendering_values(**kwargs)
+        return request.render("sale.portal_my_orders", values)</code></pre>
+            </div>
+
+            <div class="callout callout-note">
+                <strong>Key Pattern:</strong> Every portal module follows this exact structure:
+                <ul>
+                    <li>Inherit <code>CustomerPortal</code></li>
+                    <li>Override <code>_prepare_home_portal_values</code> to add your counter</li>
+                    <li>Add routes with <code>auth='user'</code> for portal pages</li>
+                    <li>Use <code>portal_pager</code> for pagination</li>
+                </ul>
+            </div>
+
+            <h3>4. Our quality_control Controllers</h3>
+            <p>We create two controller classes: one for public website pages, one for portal.</p>
+
+            <h4>Public Website Controller</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/controllers/controllers.py — Website Part</span>
                     <button class="copy-btn">Copy</button>
                 </div>
                 <pre><code class="language-python">from odoo import http
 from odoo.http import request
 
-class JobApplicationWebsite(http.Controller):
-    
-    # 1. Show the Form (GET Request)
+class QualityControlWebsite(http.Controller):
+    """Public website controllers — anyone can access these."""
+
+    @http.route('/quality/checks', type='http', auth='public', website=True)
+    def quality_checks_page(self, **kw):
+        """Public page showing quality checks.
+        Demonstrates: qcontext dict passing to templates."""
+        checks = request.env['quality.check'].sudo().search([], limit=20)
+        # qcontext: every key becomes a variable in the QWeb template
+        qcontext = {
+            'checks': checks,
+            'page_title': 'Quality Checks Overview',
+            'company_name': request.env.company.name,
+        }
+        return request.render('quality_control.quality_checks_page_template', qcontext)
+
     @http.route('/jobs/apply', type='http', auth='public', website=True)
     def job_application_form(self, **kw):
-        # request.render points to the QWeb template XML ID.
-        # The second argument is a dictionary of variables to pass to the template.
-        return request.render('quality_control.job_application_form_template', {})
+        """Render the job application form with position choices."""
+        positions = [
+            ('qa_inspector', 'QA Inspector'),
+            ('qa_engineer', 'QA Engineer'),
+            ('qa_lead', 'QA Lead'),
+        ]
+        return request.render('quality_control.job_application_form_template', {
+            'positions': positions,   # passed to template as qcontext
+        })
 
-    # 2. Handle Form Submission (POST Request)
-    @http.route('/jobs/submit', type='http', auth='public', website=True, methods=['POST'])
+    @http.route('/jobs/submit', type='http', auth='public',
+                website=True, methods=['POST'])
     def job_application_submit(self, **post):
-        # We must use .sudo() here! 
-        # Why? Because 'auth="public"' means the user is a guest. Guests do not have write access to the database.
-        application = request.env['quality.job.application'].sudo().create({
+        """Handle form submission."""
+        import base64
+        resume_file = post.get('resume')
+        resume_base64 = base64.b64encode(resume_file.read()) if resume_file else False
+
+        vals = {
             'name': post.get('name'),
             'email': post.get('email'),
             'phone': post.get('phone'),
+            'position': post.get('position', 'qa_inspector'),
+            'cover_letter': post.get('cover_letter'),
+            'resume': resume_base64,
+            'resume_name': resume_file.filename if resume_file else False,
+        }
+
+        # Link partner for logged-in users (portal users)
+        if not request.env.user._is_public():
+            vals['partner_id'] = request.env.user.partner_id.id
+
+        # sudo() needed — public users have no write access
+        application = request.env['quality.job.application'].sudo().create(vals)
+
+        return request.render('quality_control.job_application_success_template', {
+            'name': application.name,
+            'email': application.email,
+        })</code></pre>
+            </div>
+
+            <h4>Portal Controller (following sale module pattern)</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/controllers/controllers.py — Portal Part</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
+
+class PortalJobApplication(CustomerPortal):
+    """Portal controllers — same pattern as sale module."""
+
+    def _prepare_home_portal_values(self, counters):
+        """Add job application count to portal dashboard."""
+        values = super()._prepare_home_portal_values(counters)
+        if 'job_application_count' in counters:
+            JobApp = request.env['quality.job.application']
+            values['job_application_count'] = (
+                JobApp.search_count([])      # ir.rule auto-filters!
+                if JobApp.has_access('read')
+                else 0
+            )
+        return values
+
+    @http.route(['/my/applications', '/my/applications/page/&lt;int:page&gt;'],
+                type='http', auth='user', website=True)
+    def portal_my_applications(self, page=1, sortby=None, **kwargs):
+        """List applications. Portal sees own, Internal sees all."""
+        JobApp = request.env['quality.job.application']
+        values = self._prepare_portal_layout_values()
+
+        searchbar_sortings = {
+            'date': {'label': 'Newest', 'order': 'create_date desc'},
+            'name': {'label': 'Name', 'order': 'name asc'},
+            'state': {'label': 'Status', 'order': 'state asc'},
+        }
+        sortby = sortby or 'date'
+
+        application_count = JobApp.search_count([])
+        pager = portal_pager(
+            url='/my/applications',
+            total=application_count,
+            page=page,
+            step=self._items_per_page,
+        )
+        applications = JobApp.search(
+            [], order=searchbar_sortings[sortby]['order'],
+            limit=self._items_per_page, offset=pager['offset'],
+        )
+
+        values.update({
+            'applications': applications,
+            'page_name': 'my_applications',
+            'pager': pager,
+            'default_url': '/my/applications',
+            'sortby': sortby,
+            'searchbar_sortings': searchbar_sortings,
         })
-        # Pass the created application name back to the template
-        return request.render('quality_control.job_application_success_template', {'name': application.name})</code></pre>
+        return request.render('quality_control.portal_my_applications', values)</code></pre>
+            </div>
+
+            <div class="callout callout-warning">
+                <strong>Why <code>sudo()</code>?</strong> When <code>auth='public'</code>, the user is a guest with no database permissions. To write to a model, you must use <code>.sudo()</code>. But for portal routes (<code>auth='user'</code>), the logged-in user's permissions + record rules handle access — no <code>sudo()</code> needed.
             </div>
         </section>
 
-        <!-- SECTION: Templates -->
+        <!-- ================================================================
+             SECTION 3: Templates & QWeb for Website
+             ================================================================ -->
         <section id="section-templates" class="section">
-            <h2>Templates &amp; QWeb for Website</h2>
-            <p>Once the controller gathers the data, it passes it to QWeb, Odoo's template engine. QWeb uses standard XML tags prefixed with <code>t-</code> to inject dynamic content.</p>
+            <h2>QWeb Templates for Website</h2>
+            <p>QWeb is Odoo's template engine. Controllers pass data to templates via a <strong>qcontext dict</strong>, and QWeb renders HTML using <code>t-</code> prefixed directives.</p>
 
+            <h3>1. The qcontext Flow</h3>
             <div class="callout callout-info">
-                <strong>Key QWeb Directives:</strong>
-                <ul>
-                    <li><code>t-call="website.layout"</code>: Wraps your code in the standard Odoo header and footer.</li>
-                    <li><code>t-esc="variable"</code>: Safely outputs a variable to the HTML (escapes script tags to prevent XSS).</li>
-                    <li><code>t-if="condition"</code>: Conditionally renders a block of HTML.</li>
-                    <li><code>t-foreach="records" t-as="record"</code>: Loops through a list or recordset.</li>
-                </ul>
+                <strong>How Data Flows:</strong>
+                <ol style="margin: 10px 0; padding-left: 20px;">
+                    <li>Controller builds a Python dict (<code>qcontext</code>)</li>
+                    <li>Controller calls <code>request.render('template_xml_id', qcontext)</code></li>
+                    <li>QWeb engine receives the dict — every key becomes a template variable</li>
+                    <li>Template uses <code>t-esc</code>, <code>t-foreach</code>, etc. to render the data</li>
+                </ol>
             </div>
 
             <div class="code-block">
                 <div class="code-header">
-                    <span class="file-name">quality_control/views/website_templates.xml</span>
+                    <span class="file-name">Controller (Python)</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python"># The dict passed to request.render() IS the qcontext
+qcontext = {
+    'checks': checks,                     # recordset
+    'page_title': 'Quality Checks',       # string
+    'company_name': request.env.company.name,  # string
+}
+return request.render('quality_control.quality_checks_page_template', qcontext)</code></pre>
+            </div>
+
+            <h3>2. QWeb Directive Reference</h3>
+            <table class="ref-table">
+                <thead>
+                    <tr>
+                        <th>Directive</th>
+                        <th>Purpose</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>t-esc="var"</code></td>
+                        <td>Output variable (HTML-escaped, safe from XSS)</td>
+                        <td><code>&lt;span t-esc="name"/&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-out="var"</code></td>
+                        <td>Output variable (same as t-esc in Odoo 17+)</td>
+                        <td><code>&lt;t t-out="count"/&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-field="record.field"</code></td>
+                        <td>Render field with proper widget (dates, monetary, etc.)</td>
+                        <td><code>&lt;span t-field="app.state"/&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-if / t-elif / t-else</code></td>
+                        <td>Conditional rendering</td>
+                        <td><code>&lt;t t-if="not records"&gt;...&lt;/t&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-foreach / t-as</code></td>
+                        <td>Loop through lists or recordsets</td>
+                        <td><code>&lt;t t-foreach="checks" t-as="check"&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-att-*</code></td>
+                        <td>Dynamic attribute (evaluated Python expression)</td>
+                        <td><code>&lt;div t-att-class="'active' if x else ''"&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-attf-*</code></td>
+                        <td>Format string attribute (mix static + dynamic)</td>
+                        <td><code>&lt;a t-attf-href="/order/#{order.id}"&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-call="template_id"</code></td>
+                        <td>Include another template (like a partial)</td>
+                        <td><code>&lt;t t-call="website.layout"&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>t-set / t-value</code></td>
+                        <td>Set a variable inside the template</td>
+                        <td><code>&lt;t t-set="title"&gt;My Page&lt;/t&gt;</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>3. Layout Templates</h3>
+            <p>Two main layout templates you'll use:</p>
+            <table class="ref-table">
+                <thead>
+                    <tr>
+                        <th>Template</th>
+                        <th>When to Use</th>
+                        <th>What It Provides</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>website.layout</code></td>
+                        <td>Public website pages (anyone can see)</td>
+                        <td>Full website header, footer, navigation, theme, SEO</td>
+                    </tr>
+                    <tr>
+                        <td><code>portal.portal_layout</code></td>
+                        <td>Portal pages (logged-in users)</td>
+                        <td>Portal navbar, breadcrumbs, sidebar, user context</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>4. Building a Public Page — Quality Checks</h3>
+            <p>This template renders data from the qcontext using every major QWeb directive:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/views/website_templates.xml — Public Page</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-xml">&lt;template id="quality_checks_page_template" name="Quality Checks Page"&gt;
+    &lt;!-- t-call wraps our content in the website header/footer --&gt;
+    &lt;t t-call="website.layout"&gt;
+        &lt;div id="wrap" class="container mt-5 mb-5"&gt;
+            &lt;!-- t-esc: safely output a string variable --&gt;
+            &lt;h2&gt;&lt;t t-esc="page_title"/&gt;&lt;/h2&gt;
+            &lt;p&gt;Company: &lt;strong t-esc="company_name"/&gt;&lt;/p&gt;
+
+            &lt;!-- t-if: conditional rendering --&gt;
+            &lt;t t-if="not checks"&gt;
+                &lt;div class="alert alert-info"&gt;No quality checks found.&lt;/div&gt;
+            &lt;/t&gt;
+
+            &lt;t t-if="checks"&gt;
+                &lt;div class="row"&gt;
+                    &lt;!-- t-foreach: iterate over a recordset --&gt;
+                    &lt;t t-foreach="checks" t-as="check"&gt;
+                        &lt;div class="col-md-4 mb-4"&gt;
+                            &lt;div class="card"&gt;
+                                &lt;div class="card-body"&gt;
+                                    &lt;!-- t-field: renders with proper widget --&gt;
+                                    &lt;h5 t-field="check.name"/&gt;
+                                    &lt;!-- t-att-class: dynamic CSS class --&gt;
+                                    &lt;span t-att-class="'badge ' + ('bg-success' if check.result == 'pass'
+                                          else 'bg-danger' if check.result == 'fail'
+                                          else 'bg-secondary')"
+                                          t-field="check.state"/&gt;
+                                    &lt;!-- t-if with t-else --&gt;
+                                    &lt;t t-if="check.remarks"&gt;
+                                        &lt;p t-esc="check.remarks"/&gt;
+                                    &lt;/t&gt;
+                                    &lt;t t-else=""&gt;
+                                        &lt;p class="text-muted"&gt;No remarks.&lt;/p&gt;
+                                    &lt;/t&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/t&gt;
+                &lt;/div&gt;
+            &lt;/t&gt;
+        &lt;/div&gt;
+    &lt;/t&gt;
+&lt;/template&gt;</code></pre>
+            </div>
+
+            <h3>5. Building a Form — Job Application</h3>
+            <p>This template uses <code>t-foreach</code> on a Python list to render dropdown options dynamically:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/views/website_templates.xml — Job Form</span>
                     <button class="copy-btn">Copy</button>
                 </div>
                 <pre><code class="language-xml">&lt;template id="job_application_form_template" name="Job Application Form"&gt;
     &lt;t t-call="website.layout"&gt;
-        &lt;div id="wrap" class="container mt-5"&gt;
-            &lt;h3&gt;Apply for QA Inspector&lt;/h3&gt;
-            &lt;!-- The form action MUST match the @http.route in your controller --&gt;
-            &lt;form action="/jobs/submit" method="post"&gt;
-                &lt;!-- CRITICAL: Always include csrf_token for POST forms to prevent Cross-Site Request Forgery --&gt;
-                &lt;input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/&gt;
-                
-                &lt;label&gt;Name&lt;/label&gt;
-                &lt;input type="text" class="form-control mb-3" name="name" required="1"/&gt;
-                
-                &lt;label&gt;Email&lt;/label&gt;
-                &lt;input type="email" class="form-control mb-3" name="email" required="1"/&gt;
-                
-                &lt;label&gt;Phone&lt;/label&gt;
-                &lt;input type="text" class="form-control mb-3" name="phone"/&gt;
-                
-                &lt;button type="submit" class="btn btn-primary"&gt;Submit Application&lt;/button&gt;
+        &lt;div id="wrap" class="container mt-5 mb-5"&gt;
+            &lt;form action="/jobs/submit" method="post" enctype="multipart/form-data"&gt;
+                &lt;!-- CRITICAL: csrf_token prevents Cross-Site Request Forgery --&gt;
+                &lt;input type="hidden" name="csrf_token"
+                       t-att-value="request.csrf_token()"/&gt;
+
+                &lt;!-- Standard form fields --&gt;
+                &lt;input type="text" name="name" required="required"/&gt;
+                &lt;input type="email" name="email" required="required"/&gt;
+
+                &lt;!-- Dynamic dropdown from qcontext list --&gt;
+                &lt;select name="position" required="required"&gt;
+                    &lt;t t-foreach="positions" t-as="pos"&gt;
+                        &lt;!-- t-att-value: sets the option value dynamically --&gt;
+                        &lt;option t-att-value="pos[0]" t-esc="pos[1]"/&gt;
+                    &lt;/t&gt;
+                &lt;/select&gt;
+
+                &lt;textarea name="cover_letter"/&gt;
+                &lt;input type="file" name="resume" accept=".pdf"/&gt;
+                &lt;button type="submit"&gt;Submit&lt;/button&gt;
             &lt;/form&gt;
         &lt;/div&gt;
     &lt;/t&gt;
 &lt;/template&gt;</code></pre>
             </div>
+
+            <div class="callout callout-danger">
+                <strong>Never forget <code>csrf_token</code>!</strong> Every POST form <em>must</em> include <code>&lt;input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/&gt;</code>. Without it, Odoo will reject the submission with a <code>400 Bad Request</code>. This prevents Cross-Site Request Forgery attacks.
+            </div>
+
+            <div class="callout callout-tip">
+                <strong>t-esc vs t-field vs t-out:</strong>
+                <ul>
+                    <li><code>t-esc</code> — Use for plain Python variables (strings, numbers). Escapes HTML.</li>
+                    <li><code>t-field</code> — Use for ORM record fields. Applies the proper widget (date formatting, monetary, badges, etc.).</li>
+                    <li><code>t-out</code> — Same as <code>t-esc</code> in Odoo 17+. Can output raw HTML if the variable is <code>Markup</code>.</li>
+                </ul>
+            </div>
         </section>
 
-        <!-- SECTION: Portal -->
+        <!-- ================================================================
+             SECTION 4: Portal Views & Security
+             ================================================================ -->
         <section id="section-portal" class="section">
             <h2>Portal: Views &amp; Security</h2>
-            <p>Once a user applies, they might want to log in and check their application status. To provide this, we inject our module's data into Odoo's standard Customer Portal (`/my/home`).</p>
+            <p>The portal system lets external users (customers, applicants) log in and view their own data. Building a portal page requires both <strong>security configuration</strong> and <strong>template integration</strong>.</p>
 
-            <h3>1. Portal Security &amp; Access Rights</h3>
-            <p>Unlike public users, Portal users have accounts but they belong to the restricted <code>base.group_portal</code> group. We must explicitly grant them read access, but more importantly, we need a <strong>Record Rule</strong> to ensure they only see their <em>own</em> applications, not everyone else's.</p>
-            
+            <h3>1. Three User Types in Odoo</h3>
+            <p>Every user in Odoo belongs to one of these groups. Understanding this is critical for security:</p>
+            <table class="ref-table">
+                <thead>
+                    <tr>
+                        <th>User Type</th>
+                        <th>Group</th>
+                        <th>Can Log In?</th>
+                        <th>What They See</th>
+                        <th>Examples</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Public</strong></td>
+                        <td><code>base.group_public</code></td>
+                        <td>No</td>
+                        <td>Public website pages only</td>
+                        <td>Anonymous visitors, job applicants</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Portal</strong></td>
+                        <td><code>base.group_portal</code></td>
+                        <td>Yes</td>
+                        <td>Their <em>own</em> records via <code>/my/</code></td>
+                        <td>Customers, suppliers, applicants</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Internal</strong></td>
+                        <td><code>base.group_user</code></td>
+                        <td>Yes</td>
+                        <td><em>All</em> records + backend</td>
+                        <td>Employees, HR staff, managers</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>2. Security Layer 1: Access Rights (<code>ir.model.access.csv</code>)</h3>
+            <p>This file controls <strong>which operations</strong> each group can perform (Create, Read, Update, Delete):</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/security/ir.model.access.csv</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-csv">id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+# Public: can only CREATE (submit forms). No read — controller uses sudo()
+access_job_application_public,...,model_quality_job_application,base.group_public,0,0,1,0
+# Portal: can READ only (ir.rule filters to own records)
+access_job_application_portal,...,model_quality_job_application,base.group_portal,1,0,0,0
+# Internal: full CRUD
+access_job_application_user,...,model_quality_job_application,base.group_user,1,1,1,1</code></pre>
+            </div>
+
+            <div class="callout callout-info">
+                <strong>Why public read=0?</strong> Public users submit via <code>sudo()</code> in the controller. They never directly read records. If you set <code>read=1</code>, public users could potentially access data through crafted URLs.
+            </div>
+
+            <h3>3. Security Layer 2: Record Rules (<code>ir.rule</code>)</h3>
+            <p>Access rights say <em>what operations</em>. Record rules say <em>which records</em>. They apply a domain filter at the database level:</p>
             <div class="code-block">
                 <div class="code-header">
                     <span class="file-name">quality_control/security/security.xml</span>
                     <button class="copy-btn">Copy</button>
                 </div>
-                <pre><code class="language-xml">&lt;record id="job_application_portal_rule" model="ir.rule"&gt;
-    &lt;field name="name"&gt;Portal users can only read their own applications&lt;/field&gt;
-    &lt;field name="model_id" ref="model_quality_job_application"/&gt;
-    &lt;!-- domain_force ensures the record's creator matches the logged-in user --&gt;
-    &lt;field name="domain_force"&gt;[('create_uid', '=', user.id)]&lt;/field&gt;
-    &lt;field name="groups" eval="[(4, ref('base.group_portal'))]"/&gt;
-&lt;/record&gt;</code></pre>
+                <pre><code class="language-xml">&lt;data noupdate="1"&gt;
+    &lt;!-- PORTAL USERS: Only see their own applications --&gt;
+    &lt;record id="job_application_portal_rule" model="ir.rule"&gt;
+        &lt;field name="name"&gt;Portal: own job applications only&lt;/field&gt;
+        &lt;field name="model_id" ref="model_quality_job_application"/&gt;
+        &lt;!-- domain_force filters at database level --&gt;
+        &lt;field name="domain_force"&gt;[('partner_id', '=', user.partner_id.id)]&lt;/field&gt;
+        &lt;field name="groups" eval="[(4, ref('base.group_portal'))]"/&gt;
+        &lt;field name="perm_read" eval="1"/&gt;
+        &lt;field name="perm_write" eval="0"/&gt;
+        &lt;field name="perm_create" eval="0"/&gt;
+        &lt;field name="perm_unlink" eval="0"/&gt;
+    &lt;/record&gt;
+
+    &lt;!-- INTERNAL USERS: See ALL applications --&gt;
+    &lt;record id="job_application_internal_rule" model="ir.rule"&gt;
+        &lt;field name="name"&gt;Internal: all job applications&lt;/field&gt;
+        &lt;field name="model_id" ref="model_quality_job_application"/&gt;
+        &lt;field name="domain_force"&gt;[(1, '=', 1)]&lt;/field&gt;
+        &lt;field name="groups" eval="[(4, ref('base.group_user'))]"/&gt;
+    &lt;/record&gt;
+&lt;/data&gt;</code></pre>
             </div>
 
-            <h3>2. Portal Controller Integration</h3>
-            <p>By inheriting <code>CustomerPortal</code>, we can add a counter badge to the main portal dashboard and create a dedicated list view.</p>
+            <div class="callout callout-warning">
+                <strong><code>partner_id</code> vs <code>create_uid</code>:</strong> We use <code>partner_id</code> instead of <code>create_uid</code> for portal filtering. Why? When a public (guest) user submits a form via <code>sudo()</code>, the <code>create_uid</code> is the system user — not the applicant. By storing <code>partner_id</code> explicitly, we link records to the right person even if they register as a portal user <em>after</em> submitting.
+            </div>
+
+            <h3>4. Step-by-Step: Adding a Portal Card</h3>
+            <p>Follow these exact steps to add a "Job Applications" card to the <code>/my/home</code> portal dashboard, mirroring how the <code>sale</code> module adds "Your Orders":</p>
+
+            <h4>Step 1: Add the Counter</h4>
+            <p>Override <code>_prepare_home_portal_values</code> in your controller. The counter name (<code>job_application_count</code>) must match the <code>placeholder_count</code> in the template.</p>
             <div class="code-block">
                 <div class="code-header">
                     <span class="file-name">quality_control/controllers/controllers.py</span>
                     <button class="copy-btn">Copy</button>
                 </div>
-                <pre><code class="language-python">from odoo.addons.portal.controllers.portal import CustomerPortal
+                <pre><code class="language-python">class PortalJobApplication(CustomerPortal):
 
-class PortalJobApplication(CustomerPortal):
-    
-    # Add to the Portal Home Counter
     def _prepare_home_portal_values(self, counters):
         values = super()._prepare_home_portal_values(counters)
-        # Check if our counter should be rendered
-        if 'job_count' in counters:
-            values['job_count'] = request.env['quality.job.application'].search_count([])
-        return values
-
-    # Render the List View
-    @http.route(['/my/applications', '/my/applications/page/&lt;int:page&gt;'], type='http', auth="user", website=True)
-    def portal_my_applications(self, **kwargs):
-        # The Record Rule we created earlier will automatically filter this search!
-        applications = request.env['quality.job.application'].search([])
-        return request.render("quality_control.portal_my_applications", {'applications': applications})</code></pre>
+        if 'job_application_count' in counters:
+            JobApp = request.env['quality.job.application']
+            values['job_application_count'] = (
+                JobApp.search_count([])
+                if JobApp.has_access('read') else 0
+            )
+        return values</code></pre>
             </div>
-            
-            <h3>3. Portal View Template</h3>
-            <p>We use standard Portal layout templates like <code>portal.portal_layout</code>, <code>portal.portal_searchbar</code>, and <code>portal.portal_table</code> to ensure our custom page matches the rest of the Odoo portal.</p>
+
+            <h4>Step 2: Create the Portal Home Card Template</h4>
+            <p>Inherit <code>portal.portal_my_home</code> and add a card using <code>portal.portal_docs_entry</code>. This follows the exact same structure as the sale module:</p>
             <div class="code-block">
                 <div class="code-header">
                     <span class="file-name">quality_control/views/website_templates.xml</span>
                     <button class="copy-btn">Copy</button>
                 </div>
-                <pre><code class="language-xml">&lt;template id="portal_my_applications" name="My Applications"&gt;
-    &lt;t t-call="portal.portal_layout"&gt;
-        &lt;t t-call="portal.portal_searchbar"/&gt;
-        
-        &lt;!-- Conditional rendering using t-if --&gt;
-        &lt;t t-if="not applications"&gt;
-            &lt;p&gt;You have no job applications yet.&lt;/p&gt;
+                <pre><code class="language-xml">&lt;!-- Inherit the portal home page --&gt;
+&lt;template id="portal_my_home_job_applications"
+          name="Job Applications Portal Card"
+          inherit_id="portal.portal_my_home"
+          customize_show="True" priority="50"&gt;
+
+    &lt;!-- Enable the client category section --&gt;
+    &lt;xpath expr="//div[hasclass('o_portal_docs')]" position="before"&gt;
+        &lt;t t-set="portal_client_category_enable" t-value="True"/&gt;
+    &lt;/xpath&gt;
+
+    &lt;!-- Add our card inside the client category --&gt;
+    &lt;div id="portal_client_category" position="inside"&gt;
+        &lt;t t-call="portal.portal_docs_entry"&gt;
+            &lt;t t-set="title"&gt;Job Applications&lt;/t&gt;
+            &lt;t t-set="text"&gt;View the status of your submitted job applications&lt;/t&gt;
+            &lt;t t-set="url" t-value="'/my/applications'"/&gt;
+            &lt;!-- placeholder_count MUST match the key in _prepare_home_portal_values --&gt;
+            &lt;t t-set="placeholder_count" t-value="'job_application_count'"/&gt;
         &lt;/t&gt;
-        
+    &lt;/div&gt;
+&lt;/template&gt;</code></pre>
+            </div>
+
+            <h4>Step 3: Add Breadcrumbs</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/views/website_templates.xml</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-xml">&lt;template id="portal_my_home_menu_applications"
+          name="Portal Breadcrumbs: Job Applications"
+          inherit_id="portal.portal_breadcrumbs" priority="50"&gt;
+    &lt;xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside"&gt;
+        &lt;li t-if="page_name == 'my_applications'" class="breadcrumb-item active"&gt;
+            Job Applications
+        &lt;/li&gt;
+    &lt;/xpath&gt;
+&lt;/template&gt;</code></pre>
+            </div>
+
+            <h4>Step 4: Create the List Page</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/views/website_templates.xml</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-xml">&lt;template id="portal_my_applications" name="My Job Applications"&gt;
+    &lt;t t-call="portal.portal_layout"&gt;
+        &lt;t t-set="breadcrumbs_searchbar" t-value="True"/&gt;
+        &lt;t t-call="portal.portal_searchbar"&gt;
+            &lt;t t-set="title"&gt;Job Applications&lt;/t&gt;
+        &lt;/t&gt;
+
+        &lt;t t-if="not applications"&gt;
+            &lt;div class="alert alert-warning"&gt;No applications yet.&lt;/div&gt;
+        &lt;/t&gt;
+
         &lt;t t-if="applications" t-call="portal.portal_table"&gt;
             &lt;thead&gt;
-                &lt;tr&gt;
+                &lt;tr class="active"&gt;
                     &lt;th&gt;Name&lt;/th&gt;
+                    &lt;th&gt;Position&lt;/th&gt;
                     &lt;th&gt;Email&lt;/th&gt;
-                    &lt;th&gt;Status&lt;/th&gt;
+                    &lt;th class="text-center"&gt;Status&lt;/th&gt;
+                    &lt;th class="text-end"&gt;Applied On&lt;/th&gt;
                 &lt;/tr&gt;
             &lt;/thead&gt;
             &lt;tbody&gt;
-                &lt;!-- Iteration using t-foreach --&gt;
                 &lt;t t-foreach="applications" t-as="app"&gt;
                     &lt;tr&gt;
-                        &lt;!-- Output variables using t-field --&gt;
                         &lt;td&gt;&lt;span t-field="app.name"/&gt;&lt;/td&gt;
+                        &lt;td&gt;&lt;span t-field="app.position"/&gt;&lt;/td&gt;
                         &lt;td&gt;&lt;span t-field="app.email"/&gt;&lt;/td&gt;
-                        &lt;td&gt;&lt;span t-field="app.state"/&gt;&lt;/td&gt;
+                        &lt;td class="text-center"&gt;
+                            &lt;span t-att-class="'badge rounded-pill ' +
+                                ('text-bg-secondary' if app.state == 'draft'
+                                 else 'text-bg-info' if app.state == 'review'
+                                 else 'text-bg-success' if app.state == 'accepted'
+                                 else 'text-bg-danger')"
+                                  t-field="app.state"/&gt;
+                        &lt;/td&gt;
+                        &lt;td class="text-end"&gt;
+                            &lt;span t-field="app.create_date"
+                                  t-options="{'widget': 'date'}"/&gt;
+                        &lt;/td&gt;
                     &lt;/tr&gt;
                 &lt;/t&gt;
             &lt;/tbody&gt;
         &lt;/t&gt;
     &lt;/t&gt;
 &lt;/template&gt;</code></pre>
+            </div>
+
+            <h4>Step 5: Create the Detail View</h4>
+            <p>To let users see the details of a specific application, we add a route with an ID (e.g. <code>/my/applications/&lt;int:application_id&gt;</code>). We then create a view inheriting from <code>portal.portal_sidebar</code>.</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/controllers/controllers.py</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">@http.route(['/my/applications/&lt;int:application_id&gt;'], type='http', auth="user", website=True)
+def portal_my_application_detail(self, application_id, **kw):
+    try:
+        # _document_check_access checks ir.rules for security
+        application_sudo = self._document_check_access('quality.job.application', application_id)
+    except (AccessError, MissingError):
+        return request.redirect('/my')
+
+    values = self._prepare_portal_layout_values()
+    values.update({'application': application_sudo})
+    return request.render('quality_control.portal_my_application_detail', values)</code></pre>
+            </div>
+
+            <div class="code-block mt-3">
+                <div class="code-header">
+                    <span class="file-name">quality_control/views/website_templates.xml</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-xml">&lt;template id="portal_my_application_detail" name="Application Detail" inherit_id="portal.portal_sidebar" primary="True"&gt;
+    &lt;t t-call="portal.portal_layout" position="inside"&gt;
+        &lt;t t-set="o_portal_fullwidth_alert" groups="base.group_user"&gt;
+            &lt;t t-call="portal.portal_back_in_edit_mode"&gt;
+                &lt;t t-set="backend_url" t-value="'/web#model=quality.job.application&amp;amp;id=%s&amp;amp;view_type=form' % (application.id)"/&gt;
+            &lt;/t&gt;
+        &lt;/t&gt;
+    &lt;/t&gt;
+
+    &lt;xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside"&gt;
+        &lt;div class="row mt16"&gt;
+            &lt;!-- Sidebar Content --&gt;
+            &lt;t t-call="portal.portal_record_sidebar"&gt;
+                &lt;t t-set="classes" t-value="'col-lg-3 d-print-none'"/&gt;
+                &lt;t t-set="title"&gt;
+                    &lt;h4 t-field="application.name"/&gt;
+                &lt;/t&gt;
+                &lt;t t-set="entries"&gt;
+                    &lt;div&gt;Status: &lt;span t-field="application.state"/&gt;&lt;/div&gt;
+                &lt;/t&gt;
+            &lt;/t&gt;
+
+            &lt;!-- Main Content --&gt;
+            &lt;div class="col-12 col-lg-9"&gt;
+                &lt;div class="card p-4"&gt;
+                    &lt;h3&gt;Application Details&lt;/h3&gt;
+                    &lt;p&gt;&lt;strong&gt;Position:&lt;/strong&gt; &lt;span t-field="application.position"/&gt;&lt;/p&gt;
+                    &lt;p&gt;&lt;strong&gt;Cover Letter:&lt;/strong&gt; &lt;span t-field="application.cover_letter"/&gt;&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/xpath&gt;
+&lt;/template&gt;</code></pre>
+            </div>
+
+            <h3>5. How Record Rules Work in Practice</h3>
+            <div class="callout callout-note">
+                <strong>The Magic of <code>search([])</code>:</strong> Notice how the controller does <code>JobApp.search([])</code> with an empty domain. It looks like it would return ALL records. But Odoo's record rules silently add the domain filter. For a portal user, <code>search([])</code> becomes <code>search([('partner_id', '=', current_user.partner_id.id)])</code> automatically. For an internal user, no filter is added — they see everything.
             </div>
 
             <h3>Relevant Reading Materials</h3>
@@ -298,6 +925,208 @@ class PortalJobApplication(CustomerPortal):
                     <li><a href="https://www.odoo.com/documentation/19.0/developer/reference/backend/http.html" target="_blank">Web Controllers &amp; Routing</a></li>
                     <li><a href="https://www.odoo.com/documentation/19.0/developer/howtos/backend.html#access-rights-and-record-rules" target="_blank">Security: Access Rights &amp; Record Rules</a></li>
                 </ul>
+            </div>
+        </section>
+
+        <!-- ================================================================
+             SECTION 5: Hands-On — Job Application Flow
+             ================================================================ -->
+        <section id="section-handson" class="section">
+            <h2>Hands-On: Job Application Flow</h2>
+            <p>Let's walk through the complete flow from start to finish. This ties together everything we learned: controllers, templates, security, and portal.</p>
+
+            <h3>The Complete User Journey</h3>
+            <div class="anatomy-grid">
+                <div class="anatomy-item">
+                    <code>Step 1</code>
+                    <span>Visitor opens <code>/jobs/apply</code> (public, no login required)</span>
+                </div>
+                <div class="anatomy-item">
+                    <code>Step 2</code>
+                    <span>Controller renders form with position dropdown from qcontext</span>
+                </div>
+                <div class="anatomy-item">
+                    <code>Step 3</code>
+                    <span>User fills form and submits (POST to <code>/jobs/submit</code>)</span>
+                </div>
+                <div class="anatomy-item">
+                    <code>Step 4</code>
+                    <span>Controller creates record via <code>sudo()</code>, shows success page</span>
+                </div>
+                <div class="anatomy-item">
+                    <code>Step 5</code>
+                    <span>User creates portal account and logs in</span>
+                </div>
+                <div class="anatomy-item">
+                    <code>Step 6</code>
+                    <span>Portal home shows "Job Applications" card at <code>/my/home</code></span>
+                </div>
+                <div class="anatomy-item">
+                    <code>Step 7</code>
+                    <span>Clicking card shows <code>/my/applications</code> — own records only</span>
+                </div>
+                <div class="anatomy-item">
+                    <code>Step 8</code>
+                    <span>Internal HR staff sees ALL applications in backend</span>
+                </div>
+            </div>
+
+            <h3>1. The Model</h3>
+            <p>Our model stores applications with a <code>partner_id</code> for portal access:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/models/job_application.py</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">from odoo import api, fields, models
+
+class QualityJobApplication(models.Model):
+    _name = 'quality.job.application'
+    _description = 'Quality Inspector Job Application'
+    _order = 'create_date desc'
+
+    name = fields.Char('Applicant Name', required=True)
+    email = fields.Char('Email Address', required=True)
+    phone = fields.Char('Phone Number')
+    position = fields.Selection([
+        ('qa_inspector', 'QA Inspector'),
+        ('qa_engineer', 'QA Engineer'),
+        ('qa_lead', 'QA Lead'),
+    ], string='Position', default='qa_inspector')
+    cover_letter = fields.Text('Cover Letter')
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('review', 'Under Review'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='draft')
+
+    resume = fields.Binary('Resume', attachment=True)
+    resume_name = fields.Char('Resume File Name')
+
+    # Link to partner for portal access filtering
+    partner_id = fields.Many2one('res.partner', string='Applicant Partner', index=True)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Auto-assign partner_id from logged-in user."""
+        for vals in vals_list:
+            if not vals.get('partner_id') and not self.env.user._is_public():
+                vals['partner_id'] = self.env.user.partner_id.id
+        return super().create(vals_list)</code></pre>
+            </div>
+
+            <h3>2. File Upload Handling</h3>
+            <p>When a form has <code>enctype="multipart/form-data"</code>, file inputs arrive as file objects in the <code>**post</code> dict:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/controllers/controllers.py — File handling</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">import base64
+
+# In the controller method:
+resume_file = post.get('resume')        # werkzeug FileStorage object
+resume_base64 = False
+resume_name = False
+
+if resume_file:
+    # Odoo stores Binary fields as base64-encoded strings
+    resume_base64 = base64.b64encode(resume_file.read())
+    resume_name = resume_file.filename   # Original filename</code></pre>
+            </div>
+
+            <h3>3. Security Summary</h3>
+            <table class="ref-table">
+                <thead>
+                    <tr>
+                        <th>User Type</th>
+                        <th>Access Right (CSV)</th>
+                        <th>Record Rule (XML)</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Public</td>
+                        <td>Create only</td>
+                        <td>None needed</td>
+                        <td>Can submit form via <code>sudo()</code></td>
+                    </tr>
+                    <tr>
+                        <td>Portal</td>
+                        <td>Read only</td>
+                        <td><code>partner_id = user.partner_id</code></td>
+                        <td>Sees own applications at <code>/my/applications</code></td>
+                    </tr>
+                    <tr>
+                        <td>Internal</td>
+                        <td>Full CRUD</td>
+                        <td><code>(1, '=', 1)</code> — no filter</td>
+                        <td>Sees all applications in backend + portal</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>4. Testing Checklist</h3>
+            <div class="practice-box">
+                <div class="practice-header">
+                    <span class="practice-icon">✅</span>
+                    <h4>Verify Your Implementation</h4>
+                </div>
+                <ol>
+                    <li><strong>Module Install:</strong> Upgrade the module without errors (<code>-u quality_control</code>)</li>
+                    <li><strong>Public Form:</strong> Open <code>/jobs/apply</code> in incognito. Fill and submit. Check success page shows name.</li>
+                    <li><strong>Backend Check:</strong> Log in as admin. Go to Quality Check menu. Open Job Applications. Verify the submission appears.</li>
+                    <li><strong>Portal Test:</strong> Create a portal user. Submit a job application while logged in. Go to <code>/my/home</code>. Verify "Job Applications" card shows with count.</li>
+                    <li><strong>Portal Filter:</strong> Click the card. Verify you only see YOUR applications, not others.</li>
+                    <li><strong>Public Page:</strong> Visit <code>/quality/checks</code>. Verify it shows quality check records.</li>
+                    <li><strong>Internal View:</strong> Log in as admin. Go to <code>/my/applications</code>. Verify you see ALL applications.</li>
+                </ol>
+            </div>
+
+            <h3>5. Common Pitfalls</h3>
+            <div class="callout callout-danger">
+                <strong>Top Mistakes to Avoid:</strong>
+                <ul>
+                    <li><strong>Missing CSRF token:</strong> POST forms without <code>csrf_token</code> return 400 errors</li>
+                    <li><strong>Forgetting <code>sudo()</code>:</strong> Public users have no write permissions — always use <code>sudo()</code> for form submissions</li>
+                    <li><strong>Using <code>create_uid</code> for portal rules:</strong> When public users submit via <code>sudo()</code>, the <code>create_uid</code> is the system user, not the applicant</li>
+                    <li><strong>Missing <code>enctype</code>:</strong> File uploads require <code>enctype="multipart/form-data"</code> on the form tag</li>
+                    <li><strong>Wrong counter name:</strong> The <code>placeholder_count</code> in the template must exactly match the key in <code>_prepare_home_portal_values</code></li>
+                </ul>
+            </div>
+
+            <h3>6. Module File Structure</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">quality_control/ — Complete Structure</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code>quality_control/
+├── __init__.py
+├── __manifest__.py            # depends: website, portal
+├── controllers/
+│   ├── __init__.py
+│   └── controllers.py         # Website + Portal controllers
+├── models/
+│   ├── __init__.py
+│   ├── job_application.py     # Model with partner_id
+│   ├── quality_control.py
+│   ├── quality_control_line.py
+│   └── stock_picking.py
+├── security/
+│   ├── ir.model.access.csv    # CRUD per user group
+│   └── security.xml           # Record rules (domain filters)
+├── views/
+│   ├── job_application_views.xml   # Backend list/form
+│   ├── menu.xml
+│   ├── quality_check_views.xml
+│   ├── stock_picking.xml
+│   └── website_templates.xml  # Public pages + Portal templates
+└── reports/
+    ├── quality_check_report.xml
+    └── invoice_report_inherit.xml</code></pre>
             </div>
         </section>
 

@@ -9,8 +9,10 @@
                 <field name="name"/>
                 <field name="email"/>
                 <field name="phone"/>
-                <field name="state" widget="badge" 
-                       decoration-info="state == 'draft'" 
+                <field name="position"/>
+                <field name="partner_id" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
                        decoration-warning="state == 'review'"
                        decoration-success="state == 'accepted'"
                        decoration-danger="state == 'rejected'"/>
@@ -38,13 +40,20 @@
                         <group>
                             <field name="email"/>
                             <field name="phone"/>
+                            <field name="position"/>
                         </group>
                         <group>
+                            <field name="partner_id"/>
                             <field name="create_date" string="Applied On" readonly="1"/>
                             <field name="resume_name" invisible="1"/>
                             <field name="resume" filename="resume_name" widget="binary"/>
                         </group>
                     </group>
+                    <notebook>
+                        <page string="Cover Letter">
+                            <field name="cover_letter" placeholder="Applicant's cover letter..."/>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
