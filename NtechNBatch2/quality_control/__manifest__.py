@@ -27,6 +27,7 @@
         'views/job_application_views.xml',
         'views/menu.xml',
         'views/stock_picking.xml',
+        'views/product_template_views.xml',
         'views/website_templates.xml',
         'reports/quality_check_report.xml',
         'reports/invoice_report_inherit.xml',

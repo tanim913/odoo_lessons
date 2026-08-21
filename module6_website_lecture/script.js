@@ -166,6 +166,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ---------- ATTACH COPY BUTTON LISTENERS ----------
+    const copyButtons = document.querySelectorAll('.copy-btn');
+    copyButtons.forEach(btn => {
+        if (!btn.hasAttribute('onclick')) {
+            btn.addEventListener('click', () => copyCode(btn));
+        }
+    });
+
     // ---------- KEYBOARD SHORTCUTS ----------
     document.addEventListener('keydown', (e) => {
         // Escape closes sidebar

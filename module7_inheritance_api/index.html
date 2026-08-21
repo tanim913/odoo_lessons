@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 7 — Inheriting Models, Extending Logic & API Integration | Ntech Batch 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        if (localStorage.getItem('ntech_theme') === 'light') {
+            document.documentElement.classList.add('light-theme');
+        }
+    </script>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-mark">N</div>
+            <div>
+                <div class="sidebar-title">Inheritance & APIs</div>
+                <div class="sidebar-subtitle">Odoo 19 CE</div>
+            </div>
+        </div>
+        <ul class="nav-list" id="navList">
+            <li style="margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;"><a href="../index.html" class="nav-link" style="color: var(--accent-light);">
+                <span class="nav-icon">⬅️</span> Course Directory
+            </a></li>
+            
+            <li><a href="#intro" class="nav-link active" data-section="intro">
+                <span class="nav-icon">🏠</span> Introduction
+            </a></li>
+            <li><a href="#recap" class="nav-link" data-section="recap">
+                <span class="nav-icon">⏪</span> Recap
+            </a></li>
+            <li><a href="#section-inheritance" class="nav-link" data-section="section-inheritance">
+                <span class="nav-icon">🧬</span> Inheriting Existing Models
+            </a></li>
+            <li><a href="#section-business-logic" class="nav-link" data-section="section-business-logic">
+                <span class="nav-icon">🧠</span> Extending Business Logic
+            </a></li>
+            <li><a href="#section-compute" class="nav-link" data-section="section-compute">
+                <span class="nav-icon">🧮</span> Computed Fields
+            </a></li>
+            <li><a href="#section-store" class="nav-link" data-section="section-store">
+                <span class="nav-icon">💾</span> Stored Fields
+            </a></li>
+            <li><a href="#section-api" class="nav-link" data-section="section-api">
+                <span class="nav-icon">🔌</span> API Integration in Python
+            </a></li>
+            <li><a href="#section-hands-on" class="nav-link" data-section="section-hands-on">
+                <span class="nav-icon">🛠️</span> Hands-On: ISBN Validation
+            </a></li>
+            <li><a href="#wrap-up" class="nav-link" data-section="wrap-up">
+                <span class="nav-icon">🏁</span> Wrap Up
+            </a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <div class="edition-badge">Community Edition</div>
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle Light/Dark Mode">
+                    <span class="icon-light" style="display:none;">☀️</span>
+                    <span class="icon-dark">🌙</span>
+                </button>
+            </div>
+            <span>Odoo 19 CE &bull; Ntech Batch 2</span>
+        </div>
+    </nav>
+
+    <div class="mobile-topbar" id="mobileTopbar">
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span><span></span><span></span>
+        </button>
+        <span class="mobile-title">Module 7 — Inheritance & APIs</span>
+    </div>
+
+    <main class="content" id="content">
+        <!-- ======== HERO ======== -->
+        <section id="intro" class="section hero-section">
+            <div class="hero-badge">Module 7 of 10</div>
+            <h1>Inheriting Models, Extending Logic & API Integration<br><span class="gradient-text">Community Edition</span></h1>
+            <p class="hero-lead">By the end of this class, you will build a feature that extends Odoo's core Product template to include an ISBN field, which automatically validates itself by calling a public book database API!</p>
+        </section>
+
+        <!-- ======== RECAP ======== -->
+        <section id="recap" class="section">
+            <h2>Recap: Where We Are</h2>
+            <p>In Module 5, we learned how to structure XML views (Forms, Lists, Kanban) and in Module 6, we exposed our data to the public via Website Controllers and QWeb Templates.</p>
+            <p>Today, we dive back into the Python backend to learn how to alter <em>existing</em> Odoo modules without modifying their original source code.</p>
+        </section>
+
+        <!-- ======== INHERITANCE ======== -->
+        <section id="section-inheritance" class="section">
+            <h2>Inheriting Existing Models</h2>
+            <p><strong>Inheritance</strong> is a mechanism that allows us to modify an existing model (like adding new fields to a customer or a product) without changing the original Odoo files. In Odoo Community Edition, we use <em>classic inheritance</em>.</p>
+            
+            <p>To inherit a model, we use the <code>_inherit</code> attribute instead of <code>_name</code>. If we use <code>_inherit</code> on an existing model name, Odoo will merge our new fields into the existing database table.</p>
+
+            <div class="callout callout-info">
+                <strong>Note:</strong> <code>_name</code> creates a brand new table. <code>_inherit</code> modifies an existing table in place.
+            </div>
+
+            <h3>Adding a single field to a Product</h3>
+            <p>The following code adds a simple ISBN field to the core Odoo <code>product.template</code> model.</p>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">models/product_template.py</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">from odoo import models, fields
+
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+
+    isbn = fields.Char(string='ISBN', help='International Standard Book Number')</code></pre>
+            </div>
+            
+            <div class="callout callout-tip">
+                <strong>Tip:</strong> Always remember to add your new Python file to <code>__init__.py</code>!
+            </div>
+        </section>
+
+        <!-- ======== BUSINESS LOGIC ======== -->
+        <section id="section-business-logic" class="section">
+            <h2>Extending Business Logic</h2>
+            <p>We can also modify how Odoo behaves when records are created, written (updated), or deleted. We do this by <em>overriding</em> methods.</p>
+            
+            <p>When you override a method, you must call <code>super()</code>. This tells Odoo to run the original code first (like actually saving the record to the database), before or after running your custom code.</p>
+
+            <h3>Overriding the write method</h3>
+            <p>The code below overrides the <code>write</code> method to log a message whenever a product is updated.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">models/product_template.py</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">from odoo import models, fields
+
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+
+    def write(self, vals):
+        # super() calls the original write method
+        result = super(ProductTemplate, self).write(vals)
+        
+        # Now run our custom logic
+        if 'isbn' in vals:
+            print(f"ISBN was updated to {vals['isbn']}!")
+            
+        return result</code></pre>
+            </div>
+
+            <div class="callout callout-warning">
+                <strong>Warning:</strong> The <code>write</code> method receives a dictionary called <code>vals</code> containing only the fields that were changed. Always return the result of <code>super()</code>!
+            </div>
+        </section>
+
+        <!-- ======== COMPUTED FIELDS ======== -->
+        <section id="section-compute" class="section">
+            <h2>Computed Fields</h2>
+            <p>A <strong>computed field</strong> is a field whose value is calculated by a Python function instead of being manually typed by a user.</p>
+
+            <p>We use a <strong>decorator</strong> called <code>@api.depends</code> to tell Odoo when to recalculate the field. A decorator is just a special tag placed above a function that changes how the function behaves.</p>
+
+            <p><strong>Dependency:</strong> A dependency is a field that our computed field relies on. If the dependency changes, our field recalculates.</p>
+
+            <h3>A simple computed field</h3>
+            <p>Here we add a field that checks if the product has an ISBN.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">models/product_template.py</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">from odoo import models, fields, api
+
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+
+    isbn = fields.Char(string='ISBN')
+    has_isbn = fields.Boolean(string='Has ISBN?', compute='_compute_has_isbn')
+
+    # The decorator tells Odoo to run this function if 'isbn' changes
+    @api.depends('isbn')
+    def _compute_has_isbn(self):
+        for record in self:
+            if record.isbn:
+                record.has_isbn = True
+            else:
+                record.has_isbn = False</code></pre>
+            </div>
+
+            <div class="callout callout-danger">
+                <strong>Danger:</strong> The <code>_compute</code> method runs on a recordset (a list of records). You must ALWAYS loop through <code>self</code> using <code>for record in self:</code>. If you don't, Odoo will crash with a Singleton error!
+            </div>
+            
+            <div class="callout callout-warning">
+                <strong>Gotcha: Recursive Compute Loops</strong> If your compute method modifies a field that is listed in <code>@api.depends</code>, Odoo will get stuck in an infinite loop. Never modify your dependencies inside the compute function!
+            </div>
+        </section>
+
+        <!-- ======== STORED FIELDS ======== -->
+        <section id="section-store" class="section">
+            <h2>Stored Fields</h2>
+            <p>By default, computed fields are calculated "on the fly" when you open the page. They are not saved in the database.</p>
+            
+            <p>If you want to search, group, or filter by a computed field, you must add <code>store=True</code>. This saves the value in the database, improving performance when searching millions of records.</p>
+
+            <h3>Making it searchable</h3>
+            <p>The code below makes our boolean field stored in the database.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">models/product_template.py</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">from odoo import models, fields, api
+
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+
+    isbn = fields.Char(string='ISBN')
+    
+    # Adding store=True makes this field searchable in List views!
+    has_isbn = fields.Boolean(
+        string='Has ISBN?', 
+        compute='_compute_has_isbn', 
+        store=True
+    )</code></pre>
+            </div>
+
+            <div class="callout callout-info">
+                <strong>Note:</strong> A stored computed field only recalculates when its <code>@api.depends</code> fields change. A non-stored computed field recalculates every time the record is viewed on screen.
+            </div>
+        </section>
+
+        <!-- ======== API INTEGRATION ======== -->
+        <section id="section-api" class="section">
+            <h2>API Integration in Python</h2>
+            <p><strong>REST API:</strong> A REST API is a web address that returns raw data instead of a visual webpage. Applications use APIs to talk to each other.</p>
+            
+            <p><strong>JSON:</strong> JSON is a standard text format for data. It looks exactly like Python dictionaries and lists.</p>
+
+            <p>In Odoo, we use the <code>requests</code> library to fetch data from APIs. The <code>requests.get()</code> function calls a URL and returns a response object. The <code>.json()</code> method converts the API's raw text response into a standard Python dictionary.</p>
+
+            <p><strong>Status Code:</strong> Every API response includes a status code (like 200 for Success, or 404 for Not Found). We check this to know if our request worked.</p>
+
+            <h3>A basic API call</h3>
+            <p>The code below calls a public API and prints the title of a book.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">Example Code</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">import requests
+
+def get_book_info():
+    # Call the API with a 5 second timeout
+    response = requests.get('https://openlibrary.org/isbn/9780140328721.json', timeout=5)
+    
+    # 200 means OK (Success)
+    if response.status_code == 200:
+        # .json() turns the response text into a Python dictionary
+        data = response.json()
+        print("Book Title:", data.get('title'))
+    else:
+        print("Book not found!")</code></pre>
+            </div>
+
+            <div class="callout callout-warning">
+                <strong>Warning: Unhandled API Timeouts</strong> Always use <code>timeout=5</code> when calling external APIs. If the external server is down and you don't have a timeout, your entire Odoo server will freeze waiting for a response!
+            </div>
+
+            <h3>Practice: Public APIs to Explore</h3>
+            <p>If you want to practice calling APIs on your own (perhaps by adding a custom button to the Employee form or a Customer profile), here are three great public APIs you can experiment with:</p>
+            <ul>
+                <li style="margin-bottom: 10px;">
+                    <strong>OpenWeather API:</strong> Get current weather data for any city. (Requires signing up for a free API key).<br>
+                    <code>requests.get('https://api.openweathermap.org/data/2.5/weather?q=London&amp;appid=YOUR_KEY')</code>
+                </li>
+                <li style="margin-bottom: 10px;">
+                    <strong>PokéAPI:</strong> A fun database of all Pokémon. Great for testing how to parse deeply nested JSON data. (No API key needed!)<br>
+                    <code>requests.get('https://pokeapi.co/api/v2/pokemon/pikachu')</code>
+                </li>
+                <li>
+                    <strong>Official Joke API:</strong> Fetch random programming jokes. Perfect for testing a simple API call.<br>
+                    <code>requests.get('https://official-joke-api.appspot.com/random_joke')</code>
+                </li>
+            </ul>
+        </section>
+
+        <!-- ======== HANDS ON ======== -->
+        <section id="section-hands-on" class="section">
+            <h2>Hands-On: ISBN Validation</h2>
+            <p>Let's build our practical feature. We will add an ISBN field to products, and automatically call the Open Library API to see if the book exists. If it does, we'll mark the ISBN as valid!</p>
+
+            <h3>1. The Python Model</h3>
+            <p>This adds our fields, our compute method, and a button action to manually trigger a fresh lookup.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">models/product_template.py</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-python">from odoo import models, fields, api
+import requests
+
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+
+    isbn = fields.Char(string='ISBN')
+    
+    # Stored so we can filter by valid books
+    isbn_valid = fields.Boolean(
+        string='Is Valid Book?', 
+        compute='_compute_isbn_valid', 
+        store=True
+    )
+
+    @api.depends('isbn')
+    def _compute_isbn_valid(self):
+        for record in self:
+            if not record.isbn:
+                record.isbn_valid = False
+                continue
+                
+            try:
+                # Call the API
+                url = f"https://openlibrary.org/isbn/{record.isbn}.json"
+                response = requests.get(url, timeout=5)
+                
+                # If we get a 200 Success, the book exists!
+                if response.status_code == 200:
+                    record.isbn_valid = True
+                else:
+                    record.isbn_valid = False
+                    
+            except Exception as e:
+                # Catch timeouts and network errors
+                record.isbn_valid = False
+
+    def action_check_isbn(self):
+        """Called by a button to force a fresh API check."""
+        for record in self:
+            # We clear the field, which forces the compute method to run again
+            record.isbn_valid = False
+            record._compute_isbn_valid()</code></pre>
+            </div>
+
+            <h3>2. The XML View</h3>
+            <p>We need to add our fields to the Product Form view. We use XPath to inject our fields right below the product's barcode.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="file-name">views/product_template_views.xml</span>
+                    <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code class="language-xml">&lt;record id="view_product_template_form_inherit_isbn" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;product.template.form.inherit.isbn&lt;/field&gt;
+    &lt;field name="model"&gt;product.template&lt;/field&gt;
+    &lt;!-- We inherit the original Odoo view --&gt;
+    &lt;field name="inherit_id" ref="product.product_template_only_form_view"/&gt;
+    &lt;field name="arch" type="xml"&gt;
+        
+        &lt;!-- Find the barcode field and insert our fields after it --&gt;
+        &lt;xpath expr="//field[@name='barcode']" position="after"&gt;
+            &lt;field name="isbn"/&gt;
+            &lt;field name="isbn_valid" readonly="1"/&gt;
+            &lt;!-- A button to trigger the manual check --&gt;
+            &lt;button name="action_check_isbn" type="object" string="Verify ISBN" class="btn-secondary"/&gt;
+        &lt;/xpath&gt;
+        
+    &lt;/field&gt;
+&lt;/record&gt;</code></pre>
+            </div>
+
+            <div class="callout callout-info">
+                <strong>How to test this feature:</strong>
+                <ol>
+                    <li>Go to the <strong>Inventory</strong> or <strong>Sales</strong> app.</li>
+                    <li>Open any Product (or create a new one).</li>
+                    <li>Type a valid ISBN into the new ISBN field (below the barcode).</li>
+                    <li>Save the record, or click the <strong>Verify ISBN</strong> button. The "Is Valid Book?" checkbox should automatically turn on!</li>
+                </ol>
+                <strong>Example Valid ISBNs to try:</strong>
+                <ul style="margin-top: 10px; margin-bottom: 10px;">
+                    <li><code>9780451524935</code> — 1984, George Orwell</li>
+                    <li><code>9780743273565</code> — The Great Gatsby, F. Scott Fitzgerald</li>
+                    <li><code>9780060935467</code> — To Kill a Mockingbird, Harper Lee</li>
+                    <li><code>9780062316097</code> — Sapiens, Yuval Noah Harari</li>
+                    <li><code>9780141439518</code> — Pride and Prejudice, Jane Austen</li>
+                </ul>
+                <strong>To test a failure:</strong> Type a fake ISBN (e.g., <code>1234567890</code>) and verify the checkbox stays unchecked or turns off!
+            </div>
+        </section>
+
+        <!-- ======== WRAP UP ======== -->
+        <section id="wrap-up" class="section">
+            <h2>Wrap Up</h2>
+            <p>Today we extended Odoo's core functionality by inheriting the Product model. We intercepted the save process by overriding <code>write</code>, built automated logic using computed and stored fields, and connected our database to the outside world using the Python <code>requests</code> library and JSON APIs.</p>
+            <p>In our next module, we will explore Security & Access Control to define exactly who is allowed to edit these new fields!</p>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
